@@ -1,16 +1,38 @@
-# React + Vite
+# Website Tourism Sibetan
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> A modern, single-page website acting as the official digital representation to promote the tourism potential, culture, and accommodations of Desa Sibetan. It features a Content Management System (CMS) built to give village administrators full control over their digital assets.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+* **Laman Utama:** The first section visitors see. It contains a summary of the village profile and engaging images.
+* **Promosi Destinasi Unggulan & Adat Istiadat:** Provides detailed information, photo galleries, and locations of main tourist attractions. It also includes sections dedicated to preserving local culture, arts, and traditional event schedules.
+* **Promosi Paket Wisata & Akomodasi:** Offers integrated information regarding vacation packages, tour schedules, and pricing. It also lists available accommodations like homestays within the village.
+* **Halaman Manajemen Konten (CMS):** A closed admin panel that allows village administrators to independently add, edit, or remove website content.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Built With
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* **Frontend:** Vite + ReactJS + TailwindCSS
+* **Backend/Admin:** Directus CMS
+* **Database:** PostgreSQL
+
+---
+
+## Getting Started
+
+Follow these instructions to set up the frontend and backend locally for development.
+
+### Prerequisites
+
+Make sure you have the following installed:
+* [Node.js](https://nodejs.org/) 
+* [PostgreSQL](https://www.postgresql.org/)
+* npm or yarn
+
+### Installation
+
+1. **Clone the repository:**
+...
