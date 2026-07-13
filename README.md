@@ -1,6 +1,6 @@
 # Website Tourism Sibetan
 
-> A modern, single-page website acting as the official digital representation to promote the tourism potential, culture, and accommodations of Desa Sibetan. It features a Content Management System (CMS) built to give village administrators full control over their digital assets.
+A modern, single-page website acting as the official digital representation to promote the tourism potential, culture, and accommodations of Desa Sibetan. It features a Content Management System (CMS) built to give village administrators full control over their digital assets.
 
 ---
 
