@@ -1,29 +1,30 @@
 import React, { useState } from 'react';
 import SectionHeader from '../../ui/SectionHeader';
-import destinationsData from '../../../data/destinations.json';
-import DestinationCard from './DestinationCard';
+import traditionsData from '../../../data/traditions.json';
+import TraditionCard from './TraditionCard';
 
-const Destinations = () => {
+const Traditions = () => {
   const [showAll, setShowAll] = useState(false);
   
-  // Show only 3 items initially, or all if showAll is true
-  const visibleDestinations = showAll ? destinationsData : destinationsData.slice(0, 3);
+  // Show only 2 items initially since the grid looks best with 2 large items, 
+  // or show all if showAll is true
+  const visibleTraditions = showAll ? traditionsData : traditionsData.slice(0, 2);
 
   return (
-    <section className="py-20 px-6 md:px-12 lg:px-12 xl:px-20 bg-surface">
+    <section className="py-20 px-6 md:px-12 lg:px-12 xl:px-20 bg-surface-card">
       <div className="max-w-[1440px] mx-auto">
         
-        {/* Header Section */}
+        {/* Header Section from reusable UI component */}
         <SectionHeader 
-          pillText="Destinasi Unggulan"
-          title="Wisata Desa Sibetan"
-          description="Temukan pesona alam dan agrowisata unik Desa Sibetan — dari kebun salak yang rindang hingga panorama perbukitan Karangasem yang memukau."
+          pillText="Warisan Budaya"
+          title="Kesenian & Adat Istiadat"
+          description="Kehidupan spiritual dan budaya masyarakat Desa Sibetan yang kaya, diwariskan turun-temurun dan masih hidup hingga kini."
         />
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-12 mb-16">
-          {visibleDestinations.map((destination) => (
-            <DestinationCard key={destination.id} destination={destination} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 xl:gap-12 mb-16">
+          {visibleTraditions.map((tradition) => (
+            <TraditionCard key={tradition.id} tradition={tradition} />
           ))}
         </div>
 
@@ -33,7 +34,7 @@ const Destinations = () => {
             onClick={() => setShowAll(!showAll)}
             className="inline-flex items-center gap-2 border-2 border-accent/20 text-accent hover:bg-accent-light font-jakarta font-semibold px-6 py-2.5 rounded-lg transition-colors"
           >
-            {showAll ? 'Tampilkan Lebih Sedikit' : `Lihat Semua Destinasi (${destinationsData.length})`}
+            {showAll ? 'Tampilkan Lebih Sedikit' : `Lihat Semua Kesenian & Adat (${traditionsData.length})`}
             <svg 
               className={`w-4 h-4 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} 
               fill="none" 
@@ -50,4 +51,4 @@ const Destinations = () => {
   );
 };
 
-export default Destinations;
+export default Traditions;

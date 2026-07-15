@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "tag": "Seni Pertunjukan",
+    "title": "Tari Barong & Legong",
+    "description": "Tari Barong adalah salah satu warisan seni pertunjukan paling sakral di Bali, menceritakan pertarungan abadi antara kebaikan dan kejahatan.",
+    "images": [
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png"
+    ]
+  },
+  {
+    "id": 2,
+    "tag": "Upacara Adat",
+    "title": "Upacara Ngaben",
+    "description": "Ngaben adalah upacara kremasi Hindu Bali yang diyakini membebaskan roh, dilakukan dengan megah dan sarat akan makna filosofis.",
+    "images": [
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png"
+    ]
+  },
+  {
+    "id": 3,
+    "tag": "Seni Musik",
+    "title": "Gamelan Bleganjur",
+    "description": "Iringan gamelan khas Bali yang biasanya dimainkan dalam prosesi upacara adat atau perlombaan desa, sangat dinamis dan penuh energi.",
+    "images": [
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png"
+    ]
+  },
+  {
+    "id": 4,
+    "tag": "Ritual Harian",
+    "title": "Persembahan Canang Sari",
+    "description": "Ritual harian masyarakat Hindu Bali yang mencerminkan rasa syukur dan kedamaian, menggunakan bunga-bunga segar nan harum.",
+    "images": [
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png"
+    ]
+  }
+]
