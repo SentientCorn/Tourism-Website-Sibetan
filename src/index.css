@@ -5,7 +5,8 @@
 }
 
 @theme inline {
-
+  --font-poppins: 'Poppins', sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
 }
 
 * {
