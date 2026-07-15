@@ -1,12 +1,25 @@
 @import "tailwindcss";
 
-:root {
-
-}
+:root {}
 
 @theme inline {
   --font-poppins: 'Poppins', sans-serif;
   --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+
+  /* Brand Colors */
+  --color-brand: #1B3461;
+  --color-brand-light: #334155;
+
+  /* Action/Accent Colors */
+  --color-accent: #2D6ECD;
+  --color-accent-light: #EEF3FB;
+
+  /* Surface/Backgrounds */
+  --color-surface: #f8fafc;
+  --color-surface-card: #ffffff;
+
+  --content-main: #5D6A85;
+  --content-muted: #1A2035;
 }
 
 * {
