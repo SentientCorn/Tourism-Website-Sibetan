@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "title": "Agrowisata Salak Sibetan",
+    "location": "Desa Sibetan, Kec. Bebandem, Karangasem, Bali",
+    "description": "Desa Sibetan dikenal sebagai sentra penghasil salak terbaik di Bali. Di kawasan agrowisata ini, pengunjung dapat menikmati berbagai jenis salak.",
+    "time": "07.00 - 17.00 WITA",
+    "image": "/src/assets/hero-coba.png",
+    "photoCount": 3
+  },
+  {
+    "id": 2,
+    "title": "Wisata Alam Hutan Sibetan",
+    "location": "Kawasan Hutan Desa Sibetan, Karangasem",
+    "description": "Kawasan hutan di sekeliling Desa Sibetan menyimpan kekayaan alam yang menakjubkan. Cocok untuk healing dan melepas penat.",
+    "time": "06.00 - 16.00 WITA",
+    "image": "/src/assets/hero-coba.png",
+    "photoCount": 3
+  },
+  {
+    "id": 3,
+    "title": "Panorama Bukit Karangasem",
+    "location": "Perbukitan Sibetan, Karangasem, Bali",
+    "description": "Perbukitan di sekitar Desa Sibetan menawarkan pemandangan spektakuler khas Karangasem — sangat cocok untuk menikmati matahari terbit.",
+    "time": "Buka 24 jam",
+    "image": "/src/assets/hero-coba.png",
+    "photoCount": 3
+  },
+  {
+    "id": 4,
+    "title": "Air Terjun Tersembunyi",
+    "location": "Jalur Selatan Desa Sibetan, Karangasem",
+    "description": "Nikmati kesegaran air terjun alami yang belum banyak terjamah, dikelilingi rimbunnya hutan tropis khas Bali Timur.",
+    "time": "08.00 - 16.00 WITA",
+    "image": "/src/assets/hero-coba.png",
+    "photoCount": 5
+  },
+  {
+    "id": 5,
+    "title": "Pura Kahyangan Tiga",
+    "location": "Pusat Desa Sibetan, Karangasem",
+    "description": "Pura bersejarah yang menjadi pusat spiritual masyarakat setempat. Nikmati arsitektur tradisional Bali yang kental akan nuansa magis.",
+    "time": "07.00 - 18.00 WITA",
+    "image": "/src/assets/hero-coba.png",
+    "photoCount": 4
+  }
+]
