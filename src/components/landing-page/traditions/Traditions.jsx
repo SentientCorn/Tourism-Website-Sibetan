@@ -11,7 +11,7 @@ const Traditions = () => {
   const visibleTraditions = showAll ? traditionsData : traditionsData.slice(0, 2);
 
   return (
-    <section className="py-20 px-6 md:px-12 lg:px-12 xl:px-20 bg-surface-card">
+    <section id="traditions" className="py-20 px-6 md:px-12 lg:px-12 xl:px-20 bg-surface">
       <div className="max-w-[1440px] mx-auto">
         
         {/* Header Section from reusable UI component */}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DestinationCard = ({ destination }) => {
+const DestinationCard = ({ destination, onClickDetail }) => {
   return (
     <div className="bg-surface-card rounded-xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-300">
       {/* Image Container */}
@@ -50,7 +50,10 @@ const DestinationCard = ({ destination }) => {
             <span className="font-jakarta text-sm">{destination.time}</span>
           </div>
           
-          <button className="bg-accent hover:bg-accent/90 text-white font-jakarta text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+          <button 
+            onClick={onClickDetail}
+            className="bg-accent hover:bg-accent/90 text-white font-jakarta text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          >
             Detail & Peta &rsaquo;
           </button>
         </div>

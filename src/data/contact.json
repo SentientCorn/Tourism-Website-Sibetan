@@ -1,0 +1,23 @@
+{
+  "title": "Kontak Kami",
+  "description": "Untuk informasi lebih lanjut, silakan hubungi Kantor Desa Sibetan.",
+  "items": [
+    {
+      "id": "address",
+      "title": "Alamat Kantor",
+      "value": "Jl. Raya Sibetan, Kecamatan Bebandem, Kabupaten Karangasem, Bali 80861"
+    },
+    {
+      "id": "phone",
+      "title": "Telepon / WA",
+      "value": "+62 812-3456-7890"
+    },
+    {
+      "id": "website",
+      "title": "Website",
+      "value": "sibetan.desa.id"
+    }
+  ],
+  "mapEmbedUrl": "https://maps.google.com/maps?q=Fakultas%20Teknik%20UGM&t=&z=15&ie=UTF8&iwloc=&output=embed",
+  "mapLink": "https://maps.app.goo.gl/9u7cK2Jk8Q3u7K2J7"
+}

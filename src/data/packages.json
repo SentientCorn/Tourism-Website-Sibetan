@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "type": "Paket Wisata",
+    "title": "Paket Agrowisata Salak 1 Hari",
+    "price": "Rp 150.000 / orang",
+    "durationOrType": "1 Hari (08.00-16.00)",
+    "maxPax": "Maks. 10 orang",
+    "description": "Paket wisata sehari menjelajahi kebun salak Desa Sibetan lengkap dengan makan siang dan sesi petik salak sepuasnya.",
+    "fullDescription": "Paket wisata sehari yang dirancang khusus untuk keluarga dan rombongan kecil. Anda akan diajak berkeliling kebun salak seluas 2 hektar, belajar cara menanam hingga memanen salak yang baik dan benar. Di siang hari, nikmati hidangan khas Karangasem di tengah sejuknya kebun salak.",
+    "contactPerson": "Pak Wayan Suartha",
+    "whatsapp": "+6281234567890",
+    "contactNote": "Harga belum termasuk transport dari luar Karangasem.",
+    "image": "/src/assets/hero-coba.png",
+    "images": [
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png"
+    ],
+    "facilities": ["Makan Siang", "Pemandu Lokal", "Salak Makan di Tempat", "Tiket Masuk"],
+    "photoCount": 3
+  },
+  {
+    "id": 2,
+    "type": "Paket Wisata",
+    "title": "Paket Wisata Budaya & Alam 2H1M",
+    "price": "Rp 450.000 / orang",
+    "durationOrType": "2 Hari 1 Malam",
+    "maxPax": "Maks. 12 orang",
+    "description": "Paket dua hari satu malam yang memadukan pengalaman alam dan budaya Desa Sibetan. Harga sudah termasuk penginapan.",
+    "fullDescription": "Paket dua hari satu malam yang memadukan pengalaman alam dan budaya Desa Sibetan. Hari pertama: trekking hutan dan kebun salak. Hari kedua: mengikuti upacara adat, belajar gamelan, dan workshop kerajinan lokal.",
+    "contactPerson": "Ibu Ni Ketut Ariani",
+    "whatsapp": "+6285678901234",
+    "contactNote": "Harga belum termasuk transport dari luar Karangasem.",
+    "image": "/src/assets/hero-coba.png",
+    "images": [
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png"
+    ],
+    "facilities": ["Penginapan homestay", "3x makan", "Pemandu", "Tiket objek wisata", "Workshop budaya"],
+    "photoCount": 3
+  },
+  {
+    "id": 3,
+    "type": "Akomodasi",
+    "title": "Homestay Keluarga Bapak Nyoman",
+    "price": "Rp 200.000 / malam",
+    "durationOrType": "Per Malam",
+    "maxPax": "Maks. 4 orang/kamar",
+    "description": "Menginap langsung di rumah warga asli Desa Sibetan dalam suasana kekeluargaan. Cocok untuk backpacker.",
+    "fullDescription": "Rasakan pengalaman autentik tinggal bersama keluarga lokal di Desa Sibetan. Anda akan menempati kamar yang bersih dan nyaman dengan arsitektur Bali. Anda juga bisa ikut serta dalam kegiatan harian keluarga seperti membuat canang atau memasak masakan tradisional.",
+    "contactPerson": "Bapak Nyoman Arta",
+    "whatsapp": "+6289876543210",
+    "contactNote": "Mohon konfirmasi kedatangan H-1.",
+    "image": "/src/assets/hero-coba.png",
+    "images": [
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png"
+    ],
+    "facilities": ["Kamar Kipas Angin", "Sarapan Pagi", "Kamar Mandi Dalam", "Kopi/Teh Sepuasnya"],
+    "photoCount": 2
+  },
+  {
+    "id": 4,
+    "type": "Akomodasi",
+    "title": "Villa Kebun Salak Sibetan",
+    "price": "Rp 750.000 / malam",
+    "durationOrType": "Per Malam",
+    "maxPax": "Maks. 2 orang/kamar",
+    "description": "Villa eksklusif di tengah kebun salak dengan pemandangan Gunung Agung yang memukau. Fasilitas lengkap dan privat.",
+    "fullDescription": "Villa privat dengan kolam renang berukuran kecil menghadap langsung ke lereng Gunung Agung. Suasana yang tenang menjadikannya tempat sempurna untuk honeymoon atau menjauh dari hiruk pikuk kota.",
+    "contactPerson": "Ibu Made Suartini",
+    "whatsapp": "+6281112223334",
+    "contactNote": "Tersedia layanan antar-jemput bandara dengan biaya tambahan.",
+    "image": "/src/assets/hero-coba.png",
+    "images": [
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png",
+      "/src/assets/hero-coba.png"
+    ],
+    "facilities": ["AC", "Kolam Renang Privat", "Sarapan Terapung (Floating Breakfast)", "WiFi"],
+    "photoCount": 4
+  }
+]

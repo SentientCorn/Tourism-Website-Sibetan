@@ -36,12 +36,12 @@ const Hero = () => {
 
         {/* Buttons - Plus Jakarta Sans */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <button className="font-jakarta bg-white text-brand hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg shadow-md transition-all duration-300">
+          <a href="#destinations" className="font-jakarta bg-white text-brand hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg shadow-md transition-all duration-300 text-center inline-block">
             Jelajahi Wisata
-          </button>
-          <button className="font-jakarta bg-white/10 border border-white/40 text-white hover:bg-white/20 font-semibold px-8 py-3 rounded-lg backdrop-blur-sm transition-all duration-300">
+          </a>
+          <a href="#packages" className="font-jakarta bg-white/10 border border-white/40 text-white hover:bg-white/20 font-semibold px-8 py-3 rounded-lg backdrop-blur-sm transition-all duration-300 text-center inline-block">
             Paket & Akomodasi
-          </button>
+          </a>
         </div>
       </div>
     </section>

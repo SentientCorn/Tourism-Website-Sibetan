@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import SectionHeader from '../../ui/SectionHeader';
+import Modal from '../../ui/Modal';
 import destinationsData from '../../../data/destinations.json';
 import DestinationCard from './DestinationCard';
+import DestinationModalContent from './DestinationModalContent';
 
 const Destinations = () => {
   const [showAll, setShowAll] = useState(false);
+  const [selectedDestination, setSelectedDestination] = useState(null);
   
   // Show only 3 items initially, or all if showAll is true
   const visibleDestinations = showAll ? destinationsData : destinationsData.slice(0, 3);
 
   return (
-    <section className="py-20 px-6 md:px-12 lg:px-12 xl:px-20 bg-surface">
+    <section id="destinations" className="py-20 px-6 md:px-12 lg:px-12 xl:px-20 bg-surface-card">
       <div className="max-w-[1440px] mx-auto">
         
         {/* Header Section */}
@@ -23,7 +26,11 @@ const Destinations = () => {
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-12 mb-16">
           {visibleDestinations.map((destination) => (
-            <DestinationCard key={destination.id} destination={destination} />
+            <DestinationCard 
+              key={destination.id} 
+              destination={destination} 
+              onClickDetail={() => setSelectedDestination(destination)}
+            />
           ))}
         </div>
 
@@ -46,6 +53,16 @@ const Destinations = () => {
         </div>
 
       </div>
+
+      {/* Detail Modal */}
+      <Modal 
+        isOpen={!!selectedDestination} 
+        onClose={() => setSelectedDestination(null)}
+      >
+        {selectedDestination && (
+          <DestinationModalContent destination={selectedDestination} />
+        )}
+      </Modal>
     </section>
   );
 };
