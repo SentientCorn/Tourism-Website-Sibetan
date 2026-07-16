@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Edit, Image as ImageIcon } from 'lucide-react';
 
-const CulturesManager = ({ token, API_BASE, showMessage, onUnauthorized }) => {
+const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
   const [cultures, setCultures] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [existingImages, setExistingImages] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [form, setForm] = useState({
-    title: '', tag: '', description: '', images: null
+    title: '', tag: '', description: ''
   });
 
   const fetchData = async () => {
@@ -32,7 +34,9 @@ const CulturesManager = ({ token, API_BASE, showMessage, onUnauthorized }) => {
   }, []);
 
   const resetForm = () => {
-    setForm({ title: '', tag: '', description: '', images: null });
+    setForm({ title: '', tag: '', description: '' });
+    setExistingImages([]);
+    setSelectedFiles([]);
     setEditId(null);
     setShowAddForm(false);
   };
@@ -41,12 +45,54 @@ const CulturesManager = ({ token, API_BASE, showMessage, onUnauthorized }) => {
     setForm({
       title: item.title || '',
       tag: item.tag || '',
-      description: item.description || '',
-      images: null
+      description: item.description || ''
     });
+    setExistingImages(item.images || []);
+    setSelectedFiles([]);
     setEditId(item.id);
     setShowAddForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setSelectedFiles(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  const handleRemoveSelectedFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveOldImage = async (imageId) => {
+    if (!token) {
+      showMessage('error', 'Silakan login terlebih dahulu');
+      return;
+    }
+    if (!window.confirm('Yakin ingin menghapus foto lama ini dari database?')) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/cultures/images/${imageId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+        credentials: 'include'
+      });
+      if (res.status === 401) {
+        onUnauthorized();
+        return;
+      }
+      const data = await res.json();
+      if (res.ok) {
+        showMessage('success', data.message || 'Foto berhasil dihapus');
+        setExistingImages(prev => prev.filter(img => img.id !== imageId));
+        fetchData();
+      } else {
+        showMessage('error', data.error || 'Gagal menghapus foto');
+      }
+    } catch (err) {
+      showMessage('error', 'Terjadi kesalahan jaringan saat menghapus foto');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -88,13 +134,12 @@ const CulturesManager = ({ token, API_BASE, showMessage, onUnauthorized }) => {
 
     const payload = new FormData();
     Object.keys(form).forEach(key => {
-      if (key === 'images' && form[key]) {
-        for (let i = 0; i < form[key].length; i++) {
-          payload.append('images', form[key][i]);
-        }
-      } else if (form[key] !== null && form[key] !== '') {
+      if (form[key] !== null && form[key] !== '') {
         payload.append(key, form[key]);
       }
+    });
+    selectedFiles.forEach(file => {
+      payload.append('images', file);
     });
 
     const url = editId ? `${API_BASE}/cultures/${editId}` : `${API_BASE}/cultures`;
@@ -140,7 +185,9 @@ const CulturesManager = ({ token, API_BASE, showMessage, onUnauthorized }) => {
               resetForm();
             } else {
               setEditId(null);
-              setForm({ title: '', tag: '', description: '', images: null });
+              setForm({ title: '', tag: '', description: '' });
+              setExistingImages([]);
+              setSelectedFiles([]);
               setShowAddForm(true);
             }
           }}
@@ -171,13 +218,82 @@ const CulturesManager = ({ token, API_BASE, showMessage, onUnauthorized }) => {
               <label className="block font-bold mb-1">Description (Deskripsi)*</label>
               <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" />
             </div>
-            <div className="md:col-span-2">
-              <label className="block font-bold mb-1">
-                {editId ? 'Upload Foto Baru (Opsional, untuk menambahkan/mengganti gambar)' : 'Upload Foto Budaya (Multiple)'}
+
+            {/* Existing Images section (Only in Edit Mode) */}
+            {editId && existingImages.length > 0 && (
+              <div className="md:col-span-2 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2">
+                <label className="block font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <ImageIcon className="w-4 h-4 text-amber-600" />
+                  <span>Daftar Gambar Saat Ini di Database ({existingImages.length} foto):</span>
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {existingImages.map((img) => (
+                    <div key={img.id} className="relative bg-white rounded-lg border border-slate-200 p-1.5 shadow-2xs flex flex-col items-center">
+                      <img
+                        src={img.imageUrl.startsWith('http') ? img.imageUrl : `${SERVER_ORIGIN}/${img.imageUrl.replace(/^\//, '')}`}
+                        alt="existing"
+                        className="w-full h-24 object-cover rounded mb-1.5"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveOldImage(img.id)}
+                        className="w-full bg-rose-100 hover:bg-rose-200 text-rose-700 py-1 rounded text-[11px] font-bold flex items-center justify-center gap-1 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Hapus Foto Ini</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* New Images Upload & Preview List */}
+            <div className="md:col-span-2 mt-2">
+              <label className="block font-bold mb-1 text-slate-700">
+                {editId ? 'Tambah Foto Baru (Akan ditambahkan ke daftar gambar di atas):' : 'Upload Foto Budaya (Multiple)*'}
               </label>
-              <input type="file" multiple accept="image/*" onChange={e => setForm({...form, images: e.target.files})} className="w-full border p-1.5 rounded bg-slate-50" />
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+                className="w-full border p-2 rounded-lg bg-slate-50 text-xs"
+              />
+              
+              {selectedFiles.length > 0 && (
+                <div className="mt-3 bg-blue-50/50 p-3 rounded-xl border border-blue-200">
+                  <label className="block font-bold text-blue-900 mb-2 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-blue-600" />
+                    <span>Daftar Foto Baru yang Dipilih ({selectedFiles.length} file siap diunggah):</span>
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {selectedFiles.map((file, idx) => (
+                      <div key={idx} className="relative bg-white rounded-lg border border-blue-200 p-1.5 shadow-2xs flex flex-col items-center">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="w-full h-24 object-cover rounded mb-1.5"
+                        />
+                        <div className="w-full flex items-center justify-between gap-1 px-1 mb-1">
+                          <span className="truncate text-[10px] text-slate-600 font-medium" title={file.name}>{file.name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSelectedFile(idx)}
+                          className="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 py-1 rounded text-[11px] font-bold flex items-center justify-center gap-1 transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Batal Unggah</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="md:col-span-2 flex justify-end gap-2 mt-2">
+
+            <div className="md:col-span-2 flex justify-end gap-2 mt-3 pt-2 border-t border-slate-100">
               <button type="button" onClick={resetForm} className="px-4 py-2 border rounded font-semibold text-slate-600">Batal</button>
               <button type="submit" className="px-4 py-2 bg-[#1B3461] text-white rounded font-bold">
                 {editId ? 'Simpan Perubahan' : 'Simpan Budaya'}

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Edit, Image as ImageIcon } from 'lucide-react';
 
 const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
   const [heroes, setHeroes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [existingImageUrl, setExistingImageUrl] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [form, setForm] = useState({
-    title: '', subtitle: '', order: '0', images: null
+    title: '', subtitle: '', order: '0'
   });
 
   const fetchData = async () => {
@@ -32,7 +34,9 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
   }, []);
 
   const resetForm = () => {
-    setForm({ title: '', subtitle: '', order: '0', images: null });
+    setForm({ title: '', subtitle: '', order: '0' });
+    setExistingImageUrl(null);
+    setSelectedFiles([]);
     setEditId(null);
     setShowAddForm(false);
   };
@@ -41,12 +45,24 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
     setForm({
       title: item.title || '',
       subtitle: item.subtitle || '',
-      order: item.order !== undefined && item.order !== null ? String(item.order) : '0',
-      images: null
+      order: item.order !== undefined && item.order !== null ? String(item.order) : '0'
     });
+    setExistingImageUrl(item.imageUrl || null);
+    setSelectedFiles([]);
     setEditId(item.id);
     setShowAddForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setSelectedFiles(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  const handleRemoveSelectedFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleDelete = async (id) => {
@@ -88,13 +104,12 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
 
     const payload = new FormData();
     Object.keys(form).forEach(key => {
-      if (key === 'images' && form[key]) {
-        for (let i = 0; i < form[key].length; i++) {
-          payload.append('images', form[key][i]);
-        }
-      } else if (form[key] !== null && form[key] !== '') {
+      if (form[key] !== null && form[key] !== '') {
         payload.append(key, form[key]);
       }
+    });
+    selectedFiles.forEach(file => {
+      payload.append('images', file);
     });
 
     const url = editId ? `${API_BASE}/heroes/${editId}` : `${API_BASE}/heroes`;
@@ -140,7 +155,9 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
               resetForm();
             } else {
               setEditId(null);
-              setForm({ title: '', subtitle: '', order: '0', images: null });
+              setForm({ title: '', subtitle: '', order: '0' });
+              setExistingImageUrl(null);
+              setSelectedFiles([]);
               setShowAddForm(true);
             }
           }}
@@ -171,13 +188,71 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
               <label className="block font-bold mb-1">Order (Urutan Angka, mis: 0, 1, 2)</label>
               <input type="number" value={form.order} onChange={e => setForm({...form, order: e.target.value})} className="w-full border p-2 rounded" />
             </div>
-            <div className="md:col-span-3">
-              <label className="block font-bold mb-1">
-                {editId ? 'Upload Foto Baru (Opsional, untuk mengganti gambar hero)*' : 'Upload Foto Hero Banner*'}
+
+            {/* Existing Hero Image Preview in Edit Mode */}
+            {editId && existingImageUrl && (
+              <div className="md:col-span-3 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2">
+                <label className="block font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <ImageIcon className="w-4 h-4 text-amber-600" />
+                  <span>Gambar Saat Ini di Database (Akan diganti jika Anda memilih foto baru di bawah):</span>
+                </label>
+                <div className="max-w-xs bg-white rounded-lg border border-slate-200 p-1.5 shadow-2xs">
+                  <img
+                    src={existingImageUrl.startsWith('http') ? existingImageUrl : `${SERVER_ORIGIN}/${existingImageUrl.replace(/^\//, '')}`}
+                    alt="existing hero"
+                    className="w-full h-32 object-cover rounded"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* New Images Upload & Preview List */}
+            <div className="md:col-span-3 mt-2">
+              <label className="block font-bold mb-1 text-slate-700">
+                {editId ? 'Upload Foto Baru (Opsional, untuk mengganti gambar hero di atas)*' : 'Upload Foto Hero Banner*'}
               </label>
-              <input type="file" multiple accept="image/*" required={!editId} onChange={e => setForm({...form, images: e.target.files})} className="w-full border p-1.5 rounded bg-slate-50" />
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                required={!editId && selectedFiles.length === 0}
+                onChange={handleFileChange}
+                className="w-full border p-2 rounded-lg bg-slate-50 text-xs"
+              />
+              
+              {selectedFiles.length > 0 && (
+                <div className="mt-3 bg-blue-50/50 p-3 rounded-xl border border-blue-200">
+                  <label className="block font-bold text-blue-900 mb-2 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-blue-600" />
+                    <span>Daftar Foto Baru yang Dipilih ({selectedFiles.length} file siap diunggah):</span>
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {selectedFiles.map((file, idx) => (
+                      <div key={idx} className="relative bg-white rounded-lg border border-blue-200 p-1.5 shadow-2xs flex flex-col items-center">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="w-full h-24 object-cover rounded mb-1.5"
+                        />
+                        <div className="w-full flex items-center justify-between gap-1 px-1 mb-1">
+                          <span className="truncate text-[10px] text-slate-600 font-medium" title={file.name}>{file.name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSelectedFile(idx)}
+                          className="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 py-1 rounded text-[11px] font-bold flex items-center justify-center gap-1 transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Batal Unggah</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="md:col-span-3 flex justify-end gap-2 mt-2">
+
+            <div className="md:col-span-3 flex justify-end gap-2 mt-3 pt-2 border-t border-slate-100">
               <button type="button" onClick={resetForm} className="px-4 py-2 border rounded font-semibold text-slate-600">Batal</button>
               <button type="submit" className="px-4 py-2 bg-[#1B3461] text-white rounded font-bold">
                 {editId ? 'Simpan Perubahan' : 'Simpan Hero Banner'}
