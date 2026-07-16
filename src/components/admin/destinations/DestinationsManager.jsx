@@ -210,23 +210,23 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
           </h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="block font-bold mb-1">Title (Nama Wisata)*</label>
+              <label className="block font-bold mb-1">Nama Wisata*</label>
               <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Address (Alamat)*</label>
+              <label className="block font-bold mb-1">Alamat*</label>
               <input type="text" required value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Maps Source (URL Google Maps)*</label>
+              <label className="block font-bold mb-1">URL Google Maps*</label>
               <input type="text" required value={form.mapsSource} onChange={e => setForm({...form, mapsSource: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Open Hours (Jam Buka)*</label>
+              <label className="block font-bold mb-1">Jam Buka*</label>
               <input type="text" required value={form.openHours} onChange={e => setForm({...form, openHours: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div className="md:col-span-2">
-              <label className="block font-bold mb-1">Description (Deskripsi Lengkap)*</label>
+              <label className="block font-bold mb-1">Deskripsi Lengkap*</label>
               <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div className="md:col-span-2">

@@ -207,15 +207,15 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
           </h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="block font-bold mb-1">Title (Nama Kesenian/Adat)*</label>
+              <label className="block font-bold mb-1">Nama Kesenian/Adat*</label>
               <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Tag (mis. Tari, Musik, Tradisi)*</label>
+              <label className="block font-bold mb-1">Kategori (mis: Tari, Musik, Tradisi)*</label>
               <input type="text" required value={form.tag} onChange={e => setForm({...form, tag: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div className="md:col-span-2">
-              <label className="block font-bold mb-1">Description (Deskripsi)*</label>
+              <label className="block font-bold mb-1">Deskripsi*</label>
               <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" />
             </div>
 

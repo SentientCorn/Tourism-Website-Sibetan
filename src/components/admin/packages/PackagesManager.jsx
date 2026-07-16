@@ -213,39 +213,39 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
           </h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="block font-bold mb-1">Title (Nama Paket)*</label>
+              <label className="block font-bold mb-1">Nama Paket*</label>
               <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Price (Harga Angka, mis: 250000)*</label>
+              <label className="block font-bold mb-1">Harga (mis: 250000)*</label>
               <input type="number" required value={form.price} onChange={e => setForm({...form, price: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Duration (mis: 1 Hari / 2 Hari)*</label>
+              <label className="block font-bold mb-1">Durasi (mis: 1 Hari / 2 Hari)*</label>
               <input type="text" required value={form.duration} onChange={e => setForm({...form, duration: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div className="md:col-span-3">
-              <label className="block font-bold mb-1">Description (Deskripsi)*</label>
+              <label className="block font-bold mb-1">Deskripsi*</label>
               <textarea required rows={2} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div className="md:col-span-2">
-              <label className="block font-bold mb-1">Facilities (Fasilitas, pisahkan koma)*</label>
+              <label className="block font-bold mb-1">Fasilitas (Pisahkan dengan koma)*</label>
               <input type="text" required value={form.facilities} onChange={e => setForm({...form, facilities: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Capacity (mis: 2-10 Orang)</label>
+              <label className="block font-bold mb-1">Kapasitas (mis: 2-10 Orang)</label>
               <input type="text" value={form.capacity} onChange={e => setForm({...form, capacity: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Contact Name (Nama Kontak)</label>
+              <label className="block font-bold mb-1">Nama Kontak</label>
               <input type="text" value={form.contactName} onChange={e => setForm({...form, contactName: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Contact Phone (No WhatsApp)</label>
+              <label className="block font-bold mb-1">No. WhatsApp Kontak</label>
               <input type="text" value={form.contactPhone} onChange={e => setForm({...form, contactPhone: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Contact Note (Catatan Kontak)</label>
+              <label className="block font-bold mb-1">Catatan Kontak</label>
               <input type="text" value={form.contactNote} onChange={e => setForm({...form, contactNote: e.target.value})} className="w-full border p-2 rounded" />
             </div>
 

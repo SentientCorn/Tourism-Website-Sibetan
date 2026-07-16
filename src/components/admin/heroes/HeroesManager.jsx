@@ -177,15 +177,15 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
           </h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="block font-bold mb-1">Title (Judul Banner)</label>
+              <label className="block font-bold mb-1">Judul Banner</label>
               <input type="text" value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Subtitle (Sub-judul Banner)</label>
+              <label className="block font-bold mb-1">Sub Judul Banner</label>
               <input type="text" value={form.subtitle} onChange={e => setForm({...form, subtitle: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div>
-              <label className="block font-bold mb-1">Order (Urutan Angka, mis: 0, 1, 2)</label>
+              <label className="block font-bold mb-1">Urutan (Angka, mis: 0, 1, 2)</label>
               <input type="number" value={form.order} onChange={e => setForm({...form, order: e.target.value})} className="w-full border p-2 rounded" />
             </div>
 
