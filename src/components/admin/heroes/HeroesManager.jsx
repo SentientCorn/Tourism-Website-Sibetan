@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Edit } from 'lucide-react';
 
 const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
   const [heroes, setHeroes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({
     title: '', subtitle: '', order: '0', images: null
   });
@@ -30,6 +31,24 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
     fetchData();
   }, []);
 
+  const resetForm = () => {
+    setForm({ title: '', subtitle: '', order: '0', images: null });
+    setEditId(null);
+    setShowAddForm(false);
+  };
+
+  const handleEditClick = (item) => {
+    setForm({
+      title: item.title || '',
+      subtitle: item.subtitle || '',
+      order: item.order !== undefined && item.order !== null ? String(item.order) : '0',
+      images: null
+    });
+    setEditId(item.id);
+    setShowAddForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleDelete = async (id) => {
     if (!token) {
       showMessage('error', 'Silakan login terlebih dahulu untuk menghapus data');
@@ -50,6 +69,7 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
       const data = await res.json();
       if (res.ok) {
         showMessage('success', data.message || 'Data berhasil dihapus');
+        if (editId === id) resetForm();
         fetchData();
       } else {
         showMessage('error', data.error || 'Gagal menghapus data');
@@ -59,10 +79,10 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
     }
   };
 
-  const handleCreateSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) {
-      showMessage('error', 'Silakan login terlebih dahulu untuk menambah data');
+      showMessage('error', `Silakan login terlebih dahulu untuk ${editId ? 'memperbarui' : 'menambah'} data`);
       return;
     }
 
@@ -77,9 +97,12 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
       }
     });
 
+    const url = editId ? `${API_BASE}/heroes/${editId}` : `${API_BASE}/heroes`;
+    const method = editId ? 'PUT' : 'POST';
+
     try {
-      const res = await fetch(`${API_BASE}/heroes`, {
-        method: 'POST',
+      const res = await fetch(url, {
+        method,
         headers: { 'Authorization': `Bearer ${token}` },
         credentials: 'include',
         body: payload
@@ -90,12 +113,11 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
       }
       const data = await res.json();
       if (res.ok) {
-        showMessage('success', data.message || 'Data baru berhasil ditambahkan');
-        setShowAddForm(false);
+        showMessage('success', data.message || `Data berhasil ${editId ? 'diperbarui' : 'ditambahkan'}`);
+        resetForm();
         fetchData();
-        setForm({ title: '', subtitle: '', order: '0', images: null });
       } else {
-        showMessage('error', data.error || 'Gagal menambahkan data');
+        showMessage('error', data.error || `Gagal ${editId ? 'memperbarui' : 'menambahkan'} data`);
       }
     } catch (err) {
       showMessage('error', 'Terjadi kesalahan jaringan saat mengirim data');
@@ -113,21 +135,30 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
         </div>
         
         <button
-          onClick={() => setShowAddForm(!showAddForm)}
+          onClick={() => {
+            if (showAddForm && !editId) {
+              resetForm();
+            } else {
+              setEditId(null);
+              setForm({ title: '', subtitle: '', order: '0', images: null });
+              setShowAddForm(true);
+            }
+          }}
           className="bg-[#1B3461] hover:bg-blue-900 text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors"
         >
           <Plus className="w-4 h-4" />
-          <span>{showAddForm ? 'Tutup Form' : 'Tambah Data Baru'}</span>
+          <span>{showAddForm && !editId ? 'Tutup Form' : 'Tambah Data Baru'}</span>
         </button>
       </div>
 
-      {/* Add Form Section */}
+      {/* Add / Edit Form Section */}
       {showAddForm && (
         <div className="bg-white p-6 rounded-xl border border-blue-200 shadow-sm mb-6 animate-fadeIn">
-          <h3 className="font-bold text-sm text-[#1B3461] mb-4 border-b pb-2">
-            Form Tambah Gambar Laman Utama (Hero Banner)
+          <h3 className="font-bold text-sm text-[#1B3461] mb-4 border-b pb-2 flex items-center justify-between">
+            <span>{editId ? `Form Edit Gambar Laman Utama (ID: ${editId})` : 'Form Tambah Gambar Laman Utama'}</span>
+            {editId && <span className="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Mode Edit</span>}
           </h3>
-          <form onSubmit={handleCreateSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
               <label className="block font-bold mb-1">Title (Judul Banner)</label>
               <input type="text" value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
@@ -141,12 +172,16 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
               <input type="number" value={form.order} onChange={e => setForm({...form, order: e.target.value})} className="w-full border p-2 rounded" />
             </div>
             <div className="md:col-span-3">
-              <label className="block font-bold mb-1">Upload Foto Hero Banner*</label>
-              <input type="file" multiple accept="image/*" required onChange={e => setForm({...form, images: e.target.files})} className="w-full border p-1.5 rounded bg-slate-50" />
+              <label className="block font-bold mb-1">
+                {editId ? 'Upload Foto Baru (Opsional, untuk mengganti gambar hero)*' : 'Upload Foto Hero Banner*'}
+              </label>
+              <input type="file" multiple accept="image/*" required={!editId} onChange={e => setForm({...form, images: e.target.files})} className="w-full border p-1.5 rounded bg-slate-50" />
             </div>
             <div className="md:col-span-3 flex justify-end gap-2 mt-2">
-              <button type="button" onClick={() => setShowAddForm(false)} className="px-4 py-2 border rounded font-semibold text-slate-600">Batal</button>
-              <button type="submit" className="px-4 py-2 bg-[#1B3461] text-white rounded font-bold">Simpan Hero Banner</button>
+              <button type="button" onClick={resetForm} className="px-4 py-2 border rounded font-semibold text-slate-600">Batal</button>
+              <button type="submit" className="px-4 py-2 bg-[#1B3461] text-white rounded font-bold">
+                {editId ? 'Simpan Perubahan' : 'Simpan Hero Banner'}
+              </button>
             </div>
           </form>
         </div>
@@ -176,7 +211,7 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
                   <tr><td colSpan="6" className="p-8 text-center text-slate-400">Belum ada data hero banner di database backend.</td></tr>
                 ) : (
                   heroes.map(h => (
-                    <tr key={h.id} className="hover:bg-slate-50">
+                    <tr key={h.id} className={`hover:bg-slate-50 ${editId === h.id ? 'bg-amber-50/60' : ''}`}>
                       <td className="p-3.5 font-mono font-bold text-slate-700">{h.id}</td>
                       <td className="p-3.5">
                         {h.imageUrl ? (
@@ -188,7 +223,14 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
                       <td className="p-3.5 font-bold text-slate-900">{h.title || '-'}</td>
                       <td className="p-3.5 text-slate-600">{h.subtitle || '-'}</td>
                       <td className="p-3.5 font-bold">{h.order}</td>
-                      <td className="p-3.5 text-right">
+                      <td className="p-3.5 text-right space-x-2">
+                        <button
+                          onClick={() => handleEditClick(h)}
+                          className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          Edit
+                        </button>
                         <button
                           onClick={() => handleDelete(h.id)}
                           className="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
