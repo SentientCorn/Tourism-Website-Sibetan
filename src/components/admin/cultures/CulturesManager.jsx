@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Edit, Image as ImageIcon, Eye } from 'lucide-react';
+import Modal from '../../ui/Modal';
+import TraditionCard from '../../landing-page/traditions/TraditionCard';
 
 const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
   const [cultures, setCultures] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [previewItem, setPreviewItem] = useState(null);
   const [existingImages, setExistingImages] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [form, setForm] = useState({
@@ -335,6 +338,13 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
                       <td className="p-3.5 text-slate-600">{c.images?.length || 0} foto</td>
                       <td className="p-3.5 text-right space-x-2">
                         <button
+                          onClick={() => setPreviewItem(c)}
+                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Preview
+                        </button>
+                        <button
                           onClick={() => handleEditClick(c)}
                           className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
                         >
@@ -357,6 +367,26 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
           </div>
         )}
       </div>
+
+      {/* Detail Modal Preview */}
+      <Modal isOpen={!!previewItem} onClose={() => setPreviewItem(null)}>
+        {previewItem && (
+          <div className="p-4 sm:p-6 max-w-xl mx-auto">
+            <TraditionCard
+              tradition={{
+                ...previewItem,
+                title: previewItem.title,
+                tag: previewItem.tag || 'Budaya',
+                description: previewItem.description || '-',
+                details: previewItem.description || '-',
+                images: previewItem.images && previewItem.images.length > 0
+                  ? previewItem.images.map(img => typeof img === 'string' ? (img.startsWith('http') ? img : `${SERVER_ORIGIN}/${img.replace(/^\//, '')}`) : (img.imageUrl?.startsWith('http') ? img.imageUrl : `${SERVER_ORIGIN}/${img.imageUrl?.replace(/^\//, '')}`))
+                  : ['https://via.placeholder.com/800x400?text=No+Image']
+              }}
+            />
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

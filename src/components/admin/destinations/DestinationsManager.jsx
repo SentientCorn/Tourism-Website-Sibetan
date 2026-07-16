@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Edit, Image as ImageIcon, Eye } from 'lucide-react';
+import Modal from '../../ui/Modal';
+import DestinationModalContent from '../../landing-page/destinations/DestinationModalContent';
 
 const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [previewItem, setPreviewItem] = useState(null);
   const [existingImages, setExistingImages] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [form, setForm] = useState({
@@ -350,6 +353,13 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
                       <td className="p-3.5 text-slate-600">{d.images?.length || 0} foto</td>
                       <td className="p-3.5 text-right space-x-2">
                         <button
+                          onClick={() => setPreviewItem(d)}
+                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Preview
+                        </button>
+                        <button
                           onClick={() => handleEditClick(d)}
                           className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
                         >
@@ -372,6 +382,27 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
           </div>
         )}
       </div>
+
+      {/* Detail Modal Preview */}
+      <Modal isOpen={!!previewItem} onClose={() => setPreviewItem(null)}>
+        {previewItem && (
+          <DestinationModalContent
+            destination={{
+              ...previewItem,
+              title: previewItem.title,
+              location: previewItem.address || previewItem.location || '-',
+              time: previewItem.openHours || previewItem.time || '-',
+              description: previewItem.description || '-',
+              fullDescription: previewItem.description || '-',
+              tips: previewItem.tips || '',
+              mapEmbedUrl: previewItem.mapsSource || previewItem.mapEmbedUrl || '',
+              images: previewItem.images && previewItem.images.length > 0
+                ? previewItem.images.map(img => typeof img === 'string' ? (img.startsWith('http') ? img : `${SERVER_ORIGIN}/${img.replace(/^\//, '')}`) : (img.imageUrl?.startsWith('http') ? img.imageUrl : `${SERVER_ORIGIN}/${img.imageUrl?.replace(/^\//, '')}`))
+                : previewItem.image ? [previewItem.image.startsWith('http') ? previewItem.image : `${SERVER_ORIGIN}/${previewItem.image.replace(/^\//, '')}`] : ['https://via.placeholder.com/800x400?text=No+Image']
+            }}
+          />
+        )}
+      </Modal>
     </div>
   );
 };

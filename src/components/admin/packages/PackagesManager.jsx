@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Edit, Image as ImageIcon, Eye } from 'lucide-react';
+import Modal from '../../ui/Modal';
+import PackageModalContent from '../../landing-page/packages/PackageModalContent';
 
 const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
   const [tourPackages, setTourPackages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [previewItem, setPreviewItem] = useState(null);
   const [existingImages, setExistingImages] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [form, setForm] = useState({
@@ -365,6 +368,13 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
                       <td className="p-3.5 text-slate-600 max-w-xs truncate">{p.facilities}</td>
                       <td className="p-3.5 text-right space-x-2">
                         <button
+                          onClick={() => setPreviewItem(p)}
+                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Preview
+                        </button>
+                        <button
                           onClick={() => handleEditClick(p)}
                           className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
                         >
@@ -387,6 +397,30 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
           </div>
         )}
       </div>
+
+      {/* Detail Modal Preview */}
+      <Modal isOpen={!!previewItem} onClose={() => setPreviewItem(null)}>
+        {previewItem && (
+          <PackageModalContent
+            pkg={{
+              ...previewItem,
+              title: previewItem.title,
+              price: typeof previewItem.price === 'number' || !isNaN(previewItem.price) ? `Rp ${Number(previewItem.price).toLocaleString('id-ID')}` : previewItem.price,
+              durationOrType: previewItem.duration || '-',
+              maxPax: previewItem.capacity || '',
+              description: previewItem.description || '-',
+              fullDescription: previewItem.description || '-',
+              facilities: Array.isArray(previewItem.facilities) ? previewItem.facilities : typeof previewItem.facilities === 'string' ? previewItem.facilities.split(',').map(s => s.trim()).filter(Boolean) : [],
+              contactPerson: previewItem.contactName || previewItem.contact?.contactName || 'Admin Wisata',
+              whatsapp: previewItem.contactPhone || previewItem.contact?.contactPhone || '6281234567890',
+              contactNote: previewItem.contactNote || previewItem.contact?.contactNote || '',
+              images: previewItem.images && previewItem.images.length > 0
+                ? previewItem.images.map(img => typeof img === 'string' ? (img.startsWith('http') ? img : `${SERVER_ORIGIN}/${img.replace(/^\//, '')}`) : (img.imageUrl?.startsWith('http') ? img.imageUrl : `${SERVER_ORIGIN}/${img.imageUrl?.replace(/^\//, '')}`))
+                : ['https://via.placeholder.com/800x400?text=No+Image']
+            }}
+          />
+        )}
+      </Modal>
     </div>
   );
 };

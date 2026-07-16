@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Edit, Image as ImageIcon, Eye } from 'lucide-react';
+import Modal from '../../ui/Modal';
 
 const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
   const [heroes, setHeroes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [previewItem, setPreviewItem] = useState(null);
   const [existingImageUrl, setExistingImageUrl] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [form, setForm] = useState({
@@ -300,6 +302,13 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
                       <td className="p-3.5 font-bold">{h.order}</td>
                       <td className="p-3.5 text-right space-x-2">
                         <button
+                          onClick={() => setPreviewItem(h)}
+                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Preview
+                        </button>
+                        <button
                           onClick={() => handleEditClick(h)}
                           className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
                         >
@@ -322,6 +331,43 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
           </div>
         )}
       </div>
+
+      {/* Detail Modal Preview */}
+      <Modal isOpen={!!previewItem} onClose={() => setPreviewItem(null)}>
+        {previewItem && (
+          <div className="relative w-full h-[450px] sm:h-[550px] flex items-center px-6 sm:px-12 overflow-hidden rounded-xl">
+            <img
+              src={previewItem.imageUrl?.startsWith('http') ? previewItem.imageUrl : `${SERVER_ORIGIN}/${previewItem.imageUrl?.replace(/^\//, '')}`}
+              alt={previewItem.title || 'Desa Sibetan'}
+              className="absolute inset-0 w-full h-full object-cover z-0"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#1B3461] via-[#1B3461]/70 to-transparent z-0"></div>
+
+            <div className="relative z-10 max-w-2xl">
+              <p className="font-jakarta text-xs sm:text-sm font-semibold tracking-wider text-gray-300 mb-2 uppercase">
+                Selamat Datang Di
+              </p>
+              <h1 className="font-poppins text-4xl sm:text-5xl font-bold text-white leading-tight mb-2">
+                {previewItem.title || 'Desa Sibetan'}
+              </h1>
+              <h2 className="font-poppins text-xl sm:text-2xl font-semibold text-white/90 mb-4">
+                {previewItem.subtitle || 'Karangasem, Bali'}
+              </h2>
+              <p className="font-jakarta text-sm sm:text-base text-gray-300 leading-relaxed mb-6 max-w-xl">
+                Desa penghasil salak terbaik di Bali, kaya akan tradisi Hindu, alam yang asri, dan keramahan warga yang tulus.
+              </p>
+              <div className="flex gap-3">
+                <span className="bg-white text-[#1B3461] font-bold px-6 py-2.5 rounded-lg text-xs shadow-md">
+                  Jelajahi Wisata
+                </span>
+                <span className="bg-white/10 border border-white/40 text-white font-bold px-6 py-2.5 rounded-lg text-xs backdrop-blur-sm">
+                  Paket & Akomodasi
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
