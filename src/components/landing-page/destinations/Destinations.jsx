@@ -19,8 +19,8 @@ const Destinations = () => {
         {/* Header Section */}
         <SectionHeader 
           pillText="Destinasi Unggulan"
-          title="Wisata Desa Sibetan"
-          description="Temukan pesona alam dan agrowisata unik Desa Sibetan — dari kebun salak yang rindang hingga panorama perbukitan Karangasem yang memukau."
+          title="Jelajah Desa Sibetan"
+          description="Temukan pesona alam dan wisata unik Desa Sibetan! Dari kebun salak yang rindang hingga panorama perbukitan Karangasem yang memukau."
         />
 
         {/* Cards Grid */}
