@@ -20,6 +20,7 @@ const PackageModalContent = ({ pkg }) => {
       {/* Header Image Carousel */}
       <div className="relative h-64 sm:h-80 w-full group">
         <img 
+          loading="lazy"
           src={images[currentImageIdx]} 
           alt={pkg.title} 
           className="w-full h-full object-cover"

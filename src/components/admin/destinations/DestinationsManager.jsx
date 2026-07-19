@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit, Image as ImageIcon, Eye } from 'lucide-react';
 import Modal from '../../ui/Modal';
 import DestinationModalContent from '../../landing-page/destinations/DestinationModalContent';
+import ImageUploader from '../../ui/ImageUploader';
+import AdminActionBar from '../../ui/AdminActionBar';
+import AdminFormCard from '../../ui/AdminFormCard';
+import AdminTable from '../../ui/AdminTable';
+import { useDestinations } from '../../../hooks/useDestinations';
 
 const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
-  const [destinations, setDestinations] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { destinations, loading, refetch: fetchData } = useDestinations({ onUnauthorized });
+  const [actionLoading, setActionLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [previewItem, setPreviewItem] = useState(null);
@@ -14,27 +19,6 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
   const [form, setForm] = useState({
     title: '', address: '', mapsSource: '', openHours: '', description: '', tips: ''
   });
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/destinations`);
-      if (res.status === 401) {
-        onUnauthorized();
-        return;
-      }
-      const data = await res.json();
-      if (Array.isArray(data)) setDestinations(data);
-    } catch (err) {
-      showMessage('error', 'Gagal mengambil data dari server backend');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const resetForm = () => {
     setForm({ title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '' });
@@ -53,7 +37,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       description: item.description || '',
       tips: item.tips || ''
     });
-    setExistingImages(item.images || []);
+    setExistingImages(item.originalImages || []);
     setSelectedFiles([]);
     setEditId(item.id);
     setShowAddForm(true);
@@ -78,6 +62,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
     }
     if (!window.confirm('Yakin ingin menghapus foto lama ini dari database?')) return;
 
+    setActionLoading(true);
     try {
       const res = await fetch(`${API_BASE}/destinations/images/${imageId}`, {
         method: 'DELETE',
@@ -98,6 +83,8 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       }
     } catch (err) {
       showMessage('error', 'Terjadi kesalahan jaringan saat menghapus foto');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -108,6 +95,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
     }
     if (!window.confirm('Yakin ingin menghapus data ini dari database?')) return;
 
+    setActionLoading(true);
     try {
       const res = await fetch(`${API_BASE}/destinations/${id}`, {
         method: 'DELETE',
@@ -128,6 +116,8 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       }
     } catch (err) {
       showMessage('error', 'Terjadi kesalahan jaringan saat menghapus data');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -151,6 +141,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
     const url = editId ? `${API_BASE}/destinations/${editId}` : `${API_BASE}/destinations`;
     const method = editId ? 'PUT' : 'POST';
 
+    setActionLoading(true);
     try {
       const res = await fetch(url, {
         method,
@@ -172,216 +163,160 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       }
     } catch (err) {
       showMessage('error', 'Terjadi kesalahan jaringan saat mengirim data');
+    } finally {
+      setActionLoading(false);
     }
   };
 
+  const columns = [
+    { header: 'ID', key: 'id', className: 'font-mono font-bold text-slate-700' },
+    { header: 'Judul', key: 'title', className: 'font-bold text-slate-900' },
+    { header: 'Alamat', key: 'address', className: 'text-slate-600' },
+    { header: 'Jam Buka', key: 'openHours', className: 'text-slate-600' },
+    { header: 'Gambar', key: 'images', className: 'text-slate-600', render: (d) => `${d.originalImages?.length || 0} foto` },
+    { header: 'Aksi', key: 'action', headerClassName: 'text-right', className: 'text-right space-x-2', render: (d) => (
+      <>
+        <button
+          type="button"
+          onClick={() => setPreviewItem(d)}
+          className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
+        >
+          <Eye className="w-3.5 h-3.5" />
+          Preview
+        </button>
+        <button
+          type="button"
+          onClick={() => handleEditClick(d)}
+          className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
+        >
+          <Edit className="w-3.5 h-3.5" />
+          Edit
+        </button>
+        <button
+          type="button"
+          disabled={actionLoading}
+          onClick={() => handleDelete(d.id)}
+          className="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Hapus
+        </button>
+      </>
+    )}
+  ];
+
   return (
     <div>
-      {/* Section Action Bar */}
-      <div className="flex items-center justify-between mb-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+      <AdminActionBar 
+        title="Destinasi Wisata" 
+        isAddMode={showAddForm && !editId} 
+        onAddClick={() => {
+          if (showAddForm && !editId) {
+            resetForm();
+          } else {
+            setEditId(null);
+            setForm({ title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '' });
+            setExistingImages([]);
+            setSelectedFiles([]);
+            setShowAddForm(true);
+          }
+        }} 
+      />
+
+      <AdminFormCard
+        isOpen={showAddForm}
+        title="Destinasi Wisata"
+        editId={editId}
+        actionLoading={actionLoading}
+        onSubmit={handleSubmit}
+        onCancel={resetForm}
+        submitTextAdd="Simpan Destinasi"
+        submitTextEdit="Simpan Perubahan"
+        gridCols="md:grid-cols-2"
+      >
         <div>
-          <h2 className="font-poppins font-bold text-base text-slate-900">
-            Destinasi Wisata
-          </h2>
+          <label className="block font-bold mb-1">Nama Wisata*</label>
+          <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
         </div>
-        
-        <button
-          onClick={() => {
-            if (showAddForm && !editId) {
-              resetForm();
-            } else {
-              setEditId(null);
-              setForm({ title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '' });
-              setExistingImages([]);
-              setSelectedFiles([]);
-              setShowAddForm(true);
-            }
-          }}
-          className="bg-[#1B3461] hover:bg-blue-900 text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{showAddForm && !editId ? 'Tutup Form' : 'Tambah Data Baru'}</span>
-        </button>
-      </div>
-
-      {/* Add / Edit Form Section */}
-      {showAddForm && (
-        <div className="bg-white p-6 rounded-xl border border-blue-200 shadow-sm mb-6 animate-fadeIn">
-          <h3 className="font-bold text-sm text-[#1B3461] mb-4 border-b pb-2 flex items-center justify-between">
-            <span>{editId ? `Form Edit Destinasi Wisata (ID: ${editId})` : 'Form Tambah Destinasi Wisata'}</span>
-            {editId && <span className="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Mode Edit</span>}
-          </h3>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div>
-              <label className="block font-bold mb-1">Nama Wisata*</label>
-              <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
-            </div>
-            <div>
-              <label className="block font-bold mb-1">Alamat*</label>
-              <input type="text" required value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full border p-2 rounded" />
-            </div>
-            <div>
-              <label className="block font-bold mb-1">URL Google Maps*</label>
-              <input type="text" required value={form.mapsSource} onChange={e => setForm({...form, mapsSource: e.target.value})} className="w-full border p-2 rounded" />
-            </div>
-            <div>
-              <label className="block font-bold mb-1">Jam Buka*</label>
-              <input type="text" required value={form.openHours} onChange={e => setForm({...form, openHours: e.target.value})} className="w-full border p-2 rounded" />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block font-bold mb-1">Deskripsi Lengkap*</label>
-              <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block font-bold mb-1">Tips Wisatawan*</label>
-              <textarea required rows={2} value={form.tips} onChange={e => setForm({...form, tips: e.target.value})} className="w-full border p-2 rounded" />
-            </div>
-
-            {/* Existing Images section (Only in Edit Mode) */}
-            {editId && existingImages.length > 0 && (
-              <div className="md:col-span-2 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2">
-                <label className="block font-bold text-slate-700 mb-2 flex items-center gap-1.5">
-                  <ImageIcon className="w-4 h-4 text-amber-600" />
-                  <span>Daftar Gambar Saat Ini di Database ({existingImages.length} foto):</span>
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {existingImages.map((img) => (
-                    <div key={img.id} className="relative bg-white rounded-lg border border-slate-200 p-1.5 shadow-2xs flex flex-col items-center">
-                      <img
-                        src={img.imageUrl.startsWith('http') ? img.imageUrl : `${SERVER_ORIGIN}/${img.imageUrl.replace(/^\//, '')}`}
-                        alt="existing"
-                        className="w-full h-24 object-cover rounded mb-1.5"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveOldImage(img.id)}
-                        className="w-full bg-rose-100 hover:bg-rose-200 text-rose-700 py-1 rounded text-[11px] font-bold flex items-center justify-center gap-1 transition-colors"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        <span>Hapus Foto Ini</span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* New Images Upload & Preview List */}
-            <div className="md:col-span-2 mt-2">
-              <label className="block font-bold mb-1 text-slate-700">
-                {editId ? 'Tambah Foto Baru (Akan ditambahkan ke daftar gambar di atas):' : 'Upload Foto Destinasi (Multiple)*'}
-              </label>
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileChange}
-                className="w-full border p-2 rounded-lg bg-slate-50 text-xs"
-              />
-              
-              {selectedFiles.length > 0 && (
-                <div className="mt-3 bg-blue-50/50 p-3 rounded-xl border border-blue-200">
-                  <label className="block font-bold text-blue-900 mb-2 flex items-center gap-1.5">
-                    <ImageIcon className="w-4 h-4 text-blue-600" />
-                    <span>Daftar Foto Baru yang Dipilih ({selectedFiles.length} file siap diunggah):</span>
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {selectedFiles.map((file, idx) => (
-                      <div key={idx} className="relative bg-white rounded-lg border border-blue-200 p-1.5 shadow-2xs flex flex-col items-center">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={file.name}
-                          className="w-full h-24 object-cover rounded mb-1.5"
-                        />
-                        <div className="w-full flex items-center justify-between gap-1 px-1 mb-1">
-                          <span className="truncate text-[10px] text-slate-600 font-medium" title={file.name}>{file.name}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSelectedFile(idx)}
-                          className="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 py-1 rounded text-[11px] font-bold flex items-center justify-center gap-1 transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                          <span>Batal Unggah</span>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="md:col-span-2 flex justify-end gap-2 mt-3 pt-2 border-t border-slate-100">
-              <button type="button" onClick={resetForm} className="px-4 py-2 border rounded font-semibold text-slate-600">Batal</button>
-              <button type="submit" className="px-4 py-2 bg-[#1B3461] text-white rounded font-bold">
-                {editId ? 'Simpan Perubahan' : 'Simpan Destinasi'}
-              </button>
-            </div>
-          </form>
+        <div>
+          <label className="block font-bold mb-1">Alamat*</label>
+          <input type="text" required value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full border p-2 rounded" />
         </div>
-      )}
+        <div>
+          <label className="block font-bold mb-1">URL Google Maps*</label>
+          <input type="text" required value={form.mapsSource} onChange={e => setForm({...form, mapsSource: e.target.value})} className="w-full border p-2 rounded" />
+        </div>
+        <div>
+          <label className="block font-bold mb-1">Jam Buka*</label>
+          <input type="text" required value={form.openHours} onChange={e => setForm({...form, openHours: e.target.value})} className="w-full border p-2 rounded" />
+        </div>
+        <div className="md:col-span-2">
+          <label className="block font-bold mb-1">Deskripsi Lengkap*</label>
+          <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" />
+        </div>
+        <div className="md:col-span-2">
+          <label className="block font-bold mb-1">Tips Wisatawan*</label>
+          <textarea required rows={2} value={form.tips} onChange={e => setForm({...form, tips: e.target.value})} className="w-full border p-2 rounded" />
+        </div>
 
-      {/* Data Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        {loading ? (
-          <div className="py-12 text-center text-slate-500 font-medium text-sm">
-            Memuat data dari backend...
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-bold">
-                  <th className="p-3.5">ID</th>
-                  <th className="p-3.5">Judul</th>
-                  <th className="p-3.5">Alamat</th>
-                  <th className="p-3.5">Jam Buka</th>
-                  <th className="p-3.5">Gambar</th>
-                  <th className="p-3.5 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {destinations.length === 0 ? (
-                  <tr><td colSpan="6" className="p-8 text-center text-slate-400">Belum ada data destinasi di database backend.</td></tr>
-                ) : (
-                  destinations.map(d => (
-                    <tr key={d.id} className={`hover:bg-slate-50 ${editId === d.id ? 'bg-amber-50/60' : ''}`}>
-                      <td className="p-3.5 font-mono font-bold text-slate-700">{d.id}</td>
-                      <td className="p-3.5 font-bold text-slate-900">{d.title}</td>
-                      <td className="p-3.5 text-slate-600">{d.address}</td>
-                      <td className="p-3.5 text-slate-600">{d.openHours}</td>
-                      <td className="p-3.5 text-slate-600">{d.images?.length || 0} foto</td>
-                      <td className="p-3.5 text-right space-x-2">
-                        <button
-                          onClick={() => setPreviewItem(d)}
-                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          Preview
-                        </button>
-                        <button
-                          onClick={() => handleEditClick(d)}
-                          className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
-                        >
-                          <Edit className="w-3.5 h-3.5" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(d.id)}
-                          className="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          Hapus
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        {editId && existingImages.length > 0 && (
+          <div className="md:col-span-2 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2">
+            <label className="block font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+              <ImageIcon className="w-4 h-4 text-amber-600" />
+              <span>Daftar Gambar Saat Ini di Database ({existingImages.length} foto):</span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {existingImages.map((img) => (
+                <div key={img.id} className="relative bg-white rounded-lg border border-slate-200 p-1.5 shadow-2xs flex flex-col items-center">
+                  <img src={img.imageUrl} alt="existing" className="w-full h-24 object-cover rounded mb-1.5" />
+                  <button type="button" disabled={actionLoading} onClick={() => handleRemoveOldImage(img.id)} className="w-full bg-rose-100 hover:bg-rose-200 text-rose-700 py-1 rounded text-[11px] font-bold flex items-center justify-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                    <Trash2 className="w-3 h-3" />
+                    <span>Hapus Foto Ini</span>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-      </div>
+
+        <div className="md:col-span-2 mt-2">
+          <ImageUploader 
+            editMode={!!editId}
+            label={editId ? 'Tambah Foto Baru (Akan ditambahkan ke daftar gambar di atas):' : 'Upload Foto Destinasi (Multiple)*'}
+            onFilesSelected={(newFiles) => setSelectedFiles(prev => [...prev, ...newFiles])}
+          />
+          {selectedFiles.length > 0 && (
+            <div className="mt-3 bg-blue-50/50 p-3 rounded-xl border border-blue-200">
+              <label className="block font-bold text-blue-900 mb-2 flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-blue-600" />
+                <span>Daftar Foto Baru yang Dipilih ({selectedFiles.length} file siap diunggah):</span>
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {selectedFiles.map((file, idx) => (
+                  <div key={idx} className="relative bg-white rounded-lg border border-blue-200 p-1.5 shadow-2xs flex flex-col items-center">
+                    <img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-24 object-cover rounded mb-1.5" />
+                    <div className="w-full flex items-center justify-between gap-1 px-1 mb-1">
+                      <span className="truncate text-[10px] text-slate-600 font-medium" title={file.name}>{file.name}</span>
+                    </div>
+                    <button type="button" onClick={() => handleRemoveSelectedFile(idx)} className="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 py-1 rounded text-[11px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer">
+                      <Trash2 className="w-3 h-3" />
+                      <span>Batal Unggah</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </AdminFormCard>
+
+      <AdminTable 
+        loading={loading}
+        data={destinations}
+        columns={columns}
+        emptyMessage="Belum ada data destinasi di database backend."
+        editId={editId}
+      />
 
       {/* Detail Modal Preview */}
       <Modal isOpen={!!previewItem} onClose={() => setPreviewItem(null)}>
@@ -395,10 +330,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
               description: previewItem.description || '-',
               fullDescription: previewItem.description || '-',
               tips: previewItem.tips || '',
-              mapEmbedUrl: previewItem.mapsSource || previewItem.mapEmbedUrl || '',
-              images: previewItem.images && previewItem.images.length > 0
-                ? previewItem.images.map(img => typeof img === 'string' ? (img.startsWith('http') ? img : `${SERVER_ORIGIN}/${img.replace(/^\//, '')}`) : (img.imageUrl?.startsWith('http') ? img.imageUrl : `${SERVER_ORIGIN}/${img.imageUrl?.replace(/^\//, '')}`))
-                : previewItem.image ? [previewItem.image.startsWith('http') ? previewItem.image : `${SERVER_ORIGIN}/${previewItem.image.replace(/^\//, '')}`] : ['https://via.placeholder.com/800x400?text=No+Image']
+              mapEmbedUrl: previewItem.mapsSource || previewItem.mapEmbedUrl || ''
             }}
           />
         )}

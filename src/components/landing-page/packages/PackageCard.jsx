@@ -6,6 +6,7 @@ const PackageCard = ({ pkg, onClickDetail }) => {
       {/* Image Container */}
       <div className="relative h-56 w-full">
         <img 
+          loading="lazy"
           src={pkg.image} 
           alt={pkg.title} 
           className="w-full h-full object-cover"

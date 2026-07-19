@@ -1,13 +1,22 @@
 import React from 'react';
-import heroBg from '../../../assets/hero-coba.png';
+import heroBgFallback from '../../../assets/hero-coba.png';
+import { useHeroes } from '../../../hooks/useHeroes';
 
 const Hero = () => {
+  const { heroes, loading, error } = useHeroes();
+  
+  // Get the first hero from backend, or fallback to static if none
+  const activeHero = heroes && heroes.length > 0 ? heroes[0] : null;
+  const heroBg = activeHero && activeHero.images && activeHero.images.length > 0 ? activeHero.images[0] : heroBgFallback;
+  const title = activeHero?.title || "Desa Sibetan";
+  const subtitle = activeHero?.subtitle || "Karangasem, Bali";
+
   return (
     <section className="relative w-full h-screen flex items-center px-6 md:px-12 lg:px-24 overflow-hidden">
       {/* Background Image */}
       <img
         src={heroBg}
-        alt="Desa Sibetan"
+        alt={title}
         className="absolute inset-0 w-full h-full object-cover z-0"
       />
       {/* Gradient overlay for text readability (thick on left to thin on right) */}
@@ -21,12 +30,12 @@ const Hero = () => {
 
         {/* Main Title - Poppins */}
         <h1 className="font-poppins text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-2">
-          Desa Sibetan
+          {title}
         </h1>
 
         {/* Subtitle - Poppins */}
         <h2 className="font-poppins text-2xl md:text-3xl lg:text-4xl font-semibold text-white/90 mb-6">
-          Karangasem, Bali
+          {subtitle}
         </h2>
 
         {/* Description - Plus Jakarta Sans */}

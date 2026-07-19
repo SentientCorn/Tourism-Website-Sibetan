@@ -6,6 +6,7 @@ const DestinationCard = ({ destination, onClickDetail }) => {
       {/* Image Container */}
       <div className="relative h-64 sm:h-72 w-full">
         <img 
+          loading="lazy"
           src={destination.image} 
           alt={destination.title} 
           className="w-full h-full object-cover"

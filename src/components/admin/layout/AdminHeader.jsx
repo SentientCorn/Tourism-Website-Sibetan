@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, ExternalLink } from 'lucide-react';
+import { LogOut, ExternalLink, User, ChevronDown } from 'lucide-react';
 
-const AdminHeader = ({ username, API_BASE, onLogout }) => {
+const AdminHeader = ({ username, API_BASE, onLogout, logoutLoading }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <header className="bg-[#1B3461] text-white px-6 py-4 shadow-md">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
@@ -16,27 +29,43 @@ const AdminHeader = ({ username, API_BASE, onLogout }) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 bg-white/10 px-3.5 py-1.5 rounded-lg border border-white/20 text-sm">
-            <span className="text-emerald-300 font-semibold flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              Admin: {username}
-            </span>
+          <div className="relative" ref={dropdownRef}>
             <button 
-              onClick={onLogout}
-              className="text-white/80 hover:text-white text-xs bg-rose-600/80 hover:bg-rose-600 px-2.5 py-1 rounded transition-colors flex items-center gap-1"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg border border-white/20 transition-colors font-jakarta text-sm font-semibold cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              Logout
+              <User className="w-4 h-4" />
+              <span>{username || 'Admin'}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
+            
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-1 animate-fadeIn z-50">
+                <Link
+                  to="/"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand font-medium transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Kembali ke Website
+                </Link>
+                <button 
+                  disabled={logoutLoading}
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    onLogout();
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 font-medium transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {logoutLoading ? (
+                    <div className="w-4 h-4 border-2 border-rose-600/30 border-t-rose-600 rounded-full animate-spin"></div>
+                  ) : (
+                    <LogOut className="w-4 h-4" />
+                  )}
+                  {logoutLoading ? 'Memproses...' : 'Logout'}
+                </button>
+              </div>
+            )}
           </div>
-
-          <Link
-            to="/"
-            className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-white/20 flex items-center gap-1.5 transition-colors"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Kembali ke Website
-          </Link>
         </div>
       </div>
     </header>

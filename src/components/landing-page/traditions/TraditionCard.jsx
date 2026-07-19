@@ -20,6 +20,7 @@ const TraditionCard = ({ tradition }) => {
       {/* Image Carousel */}
       <div className="relative h-72 sm:h-80 w-full group">
         <img 
+          loading="lazy"
           src={tradition.images[currentImageIdx]} 
           alt={tradition.title} 
           className="w-full h-full object-cover transition-opacity duration-300"

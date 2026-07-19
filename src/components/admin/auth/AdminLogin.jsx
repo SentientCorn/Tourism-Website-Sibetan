@@ -81,7 +81,7 @@ const AdminLogin = ({ API_BASE, onLoginSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#1B3461] hover:bg-blue-900 text-white font-bold py-3 rounded-xl text-sm shadow-md transition-colors flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
+            className="w-full bg-[#1B3461] hover:bg-blue-900 text-white font-bold py-3 rounded-xl text-sm shadow-md transition-colors flex items-center justify-center gap-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <Lock className="w-4 h-4" />
             <span>{loading ? 'Memproses...' : 'Masuk Sekarang'}</span>
