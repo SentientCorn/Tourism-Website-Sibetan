@@ -1,6 +1,9 @@
 import React from 'react';
+import { useContact } from '../../hooks/useContact';
 
 const Footer = () => {
+  const { contact } = useContact();
+  
   return (
     <footer className="bg-[#1B3461] text-white pt-16 pb-6 px-6 md:px-12 lg:px-12 xl:px-20">
       <div className="max-w-[1440px] mx-auto">
@@ -18,8 +21,8 @@ const Footer = () => {
                 <h2 className="font-poppins font-bold tracking-widest text-lg leading-none mb-1">
                   DESA SIBETAN
                 </h2>
-                <p className="font-jakarta text-white/60 text-[10px] sm:text-xs">
-                  Kec. Bebandem - Karangasem - Bali
+                <p className="font-jakarta text-white/60 text-[10px] sm:text-xs line-clamp-1 max-w-[200px]">
+                  {contact?.address?.split(',')[1]?.trim() || "Kec. Bebandem - Karangasem"}
                 </p>
               </div>
             </div>
@@ -45,12 +48,11 @@ const Footer = () => {
             <ul className="flex flex-col gap-4 font-jakarta text-sm text-white/80">
               <li>
                 <p className="leading-relaxed">
-                  Jl. Raya Sibetan, Kec. Bebandem<br/>
-                  Kab. Karangasem, Bali 80861
+                  {contact?.address || "Jl. Raya Sibetan, Kec. Bebandem, Kab. Karangasem, Bali 80861"}
                 </p>
               </li>
-              <li>+62 812-3456-7890</li>
-              <li>sibetan.desa.id</li>
+              <li>{contact?.phone || "+62 812-3456-7890"}</li>
+              <li>{contact?.website || "sibetan.desa.id"}</li>
             </ul>
           </div>
 

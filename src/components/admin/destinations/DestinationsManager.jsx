@@ -6,6 +6,7 @@ import ImageUploader from '../../ui/ImageUploader';
 import AdminActionBar from '../../ui/AdminActionBar';
 import AdminFormCard from '../../ui/AdminFormCard';
 import AdminTable from '../../ui/AdminTable';
+import MapPicker from '../../ui/MapPicker';
 import { useDestinations } from '../../../hooks/useDestinations';
 
 const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
@@ -17,11 +18,11 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
   const [existingImages, setExistingImages] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [form, setForm] = useState({
-    title: '', address: '', mapsSource: '', openHours: '', description: '', tips: ''
+    title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '', latitude: '', longitude: ''
   });
 
   const resetForm = () => {
-    setForm({ title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '' });
+    setForm({ title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '', latitude: '', longitude: '' });
     setExistingImages([]);
     setSelectedFiles([]);
     setEditId(null);
@@ -35,7 +36,9 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       mapsSource: item.mapsSource || '',
       openHours: item.openHours || '',
       description: item.description || '',
-      tips: item.tips || ''
+      tips: item.tips || '',
+      latitude: item.latitude !== null && item.latitude !== undefined ? String(item.latitude) : '',
+      longitude: item.longitude !== null && item.longitude !== undefined ? String(item.longitude) : ''
     });
     setExistingImages(item.originalImages || []);
     setSelectedFiles([]);
@@ -77,7 +80,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       if (res.ok) {
         showMessage('success', data.message || 'Foto berhasil dihapus');
         setExistingImages(prev => prev.filter(img => img.id !== imageId));
-        fetchData();
+        fetchData(true);
       } else {
         showMessage('error', data.error || 'Gagal menghapus foto');
       }
@@ -110,7 +113,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       if (res.ok) {
         showMessage('success', data.message || 'Data berhasil dihapus');
         if (editId === id) resetForm();
-        fetchData();
+        fetchData(true);
       } else {
         showMessage('error', data.error || 'Gagal menghapus data');
       }
@@ -130,9 +133,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
 
     const payload = new FormData();
     Object.keys(form).forEach(key => {
-      if (form[key] !== null && form[key] !== '') {
-        payload.append(key, form[key]);
-      }
+      payload.append(key, form[key] !== null && form[key] !== undefined ? form[key] : '');
     });
     selectedFiles.forEach(file => {
       payload.append('images', file);
@@ -157,9 +158,13 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       if (res.ok) {
         showMessage('success', data.message || `Data berhasil ${editId ? 'diperbarui' : 'ditambahkan'}`);
         resetForm();
-        fetchData();
+        fetchData(true);
       } else {
-        showMessage('error', data.error || `Gagal ${editId ? 'memperbarui' : 'menambahkan'} data`);
+        let errMsg = data.error || `Gagal ${editId ? 'memperbarui' : 'menambahkan'} data`;
+        if (data.details && Array.isArray(data.details) && data.details.length > 0) {
+          errMsg += ': ' + data.details.map(d => `${d.path} - ${d.message}`).join(', ');
+        }
+        showMessage('error', errMsg);
       }
     } catch (err) {
       showMessage('error', 'Terjadi kesalahan jaringan saat mengirim data');
@@ -173,6 +178,12 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
     { header: 'Judul', key: 'title', className: 'font-bold text-slate-900' },
     { header: 'Alamat', key: 'address', className: 'text-slate-600' },
     { header: 'Jam Buka', key: 'openHours', className: 'text-slate-600' },
+    { 
+      header: 'Koordinat', 
+      key: 'coords', 
+      className: 'text-slate-600 font-mono text-xs', 
+      render: (d) => (d.latitude && d.longitude) ? `${Number(d.latitude).toFixed(4)}, ${Number(d.longitude).toFixed(4)}` : '-' 
+    },
     { header: 'Gambar', key: 'images', className: 'text-slate-600', render: (d) => `${d.originalImages?.length || 0} foto` },
     { header: 'Aksi', key: 'action', headerClassName: 'text-right', className: 'text-right space-x-2', render: (d) => (
       <>
@@ -215,7 +226,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
             resetForm();
           } else {
             setEditId(null);
-            setForm({ title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '' });
+            setForm({ title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '', latitude: '', longitude: '' });
             setExistingImages([]);
             setSelectedFiles([]);
             setShowAddForm(true);
@@ -236,27 +247,45 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       >
         <div>
           <label className="block font-bold mb-1">Nama Wisata*</label>
-          <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Agrowisata Salak Sibetan" />
         </div>
         <div>
           <label className="block font-bold mb-1">Alamat*</label>
-          <input type="text" required value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" required value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Banjar Telaga, Desa Sibetan, Bebandem, Karangasem" />
         </div>
         <div>
-          <label className="block font-bold mb-1">URL Google Maps*</label>
-          <input type="text" required value={form.mapsSource} onChange={e => setForm({...form, mapsSource: e.target.value})} className="w-full border p-2 rounded" />
+          <label className="block font-bold mb-1">URL Google Maps (Opsional jika pakai Peta)</label>
+          <input type="text" value={form.mapsSource} onChange={e => setForm({...form, mapsSource: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: https://maps.google.com/?q=-8.4410,115.5390" />
         </div>
         <div>
           <label className="block font-bold mb-1">Jam Buka*</label>
-          <input type="text" required value={form.openHours} onChange={e => setForm({...form, openHours: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" required value={form.openHours} onChange={e => setForm({...form, openHours: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Setiap Hari, 08:00 - 17:00 WITA" />
+        </div>
+        <div className="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2">
+          <label className="block font-bold mb-3">Pilih Lokasi di Peta (Interaktif)</label>
+          <MapPicker 
+            lat={form.latitude} 
+            lng={form.longitude} 
+            onChange={(lat, lng) => setForm({ ...form, latitude: lat, longitude: lng, mapsSource: '' })} 
+          />
+          <div className="flex gap-4 mt-3">
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-slate-600 mb-1">Latitude</label>
+              <input type="number" step="any" value={form.latitude} onChange={e => setForm({...form, latitude: e.target.value})} className="w-full border p-2 rounded text-sm bg-white" placeholder="Contoh: -8.4357" />
+            </div>
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-slate-600 mb-1">Longitude</label>
+              <input type="number" step="any" value={form.longitude} onChange={e => setForm({...form, longitude: e.target.value})} className="w-full border p-2 rounded text-sm bg-white" placeholder="Contoh: 115.5385" />
+            </div>
+          </div>
         </div>
         <div className="md:col-span-2">
           <label className="block font-bold mb-1">Deskripsi Lengkap*</label>
-          <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" />
+          <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Agrowisata Salak Sibetan menawarkan pengalaman memetik buah salak bali langsung dari pohonnya, serta menikmati keindahan kebun salak organik yang rindang..." />
         </div>
         <div className="md:col-span-2">
           <label className="block font-bold mb-1">Tips Wisatawan*</label>
-          <textarea required rows={2} value={form.tips} onChange={e => setForm({...form, tips: e.target.value})} className="w-full border p-2 rounded" />
+          <textarea required rows={2} value={form.tips} onChange={e => setForm({...form, tips: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Gunakan pakaian dan alas kaki yang nyaman untuk trekking di kebun, serta siapkan topi dan pelembap kulit." />
         </div>
 
         {editId && existingImages.length > 0 && (
@@ -330,7 +359,9 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
               description: previewItem.description || '-',
               fullDescription: previewItem.description || '-',
               tips: previewItem.tips || '',
-              mapEmbedUrl: previewItem.mapsSource || previewItem.mapEmbedUrl || ''
+              mapEmbedUrl: previewItem.mapsSource || previewItem.mapEmbedUrl || '',
+              latitude: previewItem.latitude || null,
+              longitude: previewItem.longitude || null
             }}
           />
         )}

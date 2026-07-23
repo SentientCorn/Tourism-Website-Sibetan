@@ -89,13 +89,13 @@ const AdminLogin = ({ API_BASE, onLoginSuccess }) => {
         </form>
 
         <div className="mt-6 pt-6 border-t border-slate-100 text-center">
-          <Link
-            to="/"
+          <a
+            href="/"
             className="text-xs font-semibold text-slate-500 hover:text-[#1B3461] inline-flex items-center gap-1.5 transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             Kembali ke Halaman Utama
-          </Link>
+          </a>
         </div>
       </div>
     </div>

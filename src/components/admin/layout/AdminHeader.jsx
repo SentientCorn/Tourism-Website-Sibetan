@@ -17,7 +17,7 @@ const AdminHeader = ({ username, API_BASE, onLogout, logoutLoading }) => {
   }, []);
 
   return (
-    <header className="bg-[#1B3461] text-white px-6 py-4 shadow-md">
+    <header className="bg-[#1B3461] text-white px-6 py-4 shadow-md relative z-50">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <h1 className="font-poppins font-bold text-lg tracking-wider">
@@ -41,13 +41,13 @@ const AdminHeader = ({ username, API_BASE, onLogout, logoutLoading }) => {
             
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-1 animate-fadeIn z-50">
-                <Link
-                  to="/"
+                <a
+                  href="/"
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand font-medium transition-colors"
                 >
                   <ExternalLink className="w-4 h-4" />
                   Kembali ke Website
-                </Link>
+                </a>
                 <button 
                   disabled={logoutLoading}
                   onClick={() => {

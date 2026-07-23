@@ -1,23 +1,42 @@
 import { useState, useEffect } from 'react';
 import { API_BASE, formatImagePath } from '../services/api';
 
+let heroesCache = null;
+let heroesPromise = null;
+
 export const useHeroes = (options = {}) => {
   const { onUnauthorized } = options;
-  const [heroes, setHeroes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [heroes, setHeroes] = useState(heroesCache || []);
+  const [loading, setLoading] = useState(!heroesCache);
   const [error, setError] = useState(null);
 
-  const fetchHeroes = async () => {
+  const fetchHeroes = async (force = false) => {
+    if (!force && heroesCache) {
+      setHeroes(heroesCache);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/heroes`);
-      if (response.status === 401 && onUnauthorized) {
-        onUnauthorized();
-        return;
+      if (force || !heroesPromise) {
+        heroesPromise = fetch(`${API_BASE}/heroes`)
+          .then(async (response) => {
+            if (response.status === 401 && onUnauthorized) {
+              onUnauthorized();
+              return null;
+            }
+            if (!response.ok) throw new Error('Failed to fetch heroes');
+            return response.json();
+          })
+          .finally(() => {
+            heroesPromise = null;
+          });
       }
-      if (!response.ok) throw new Error('Failed to fetch heroes');
-      const data = await response.json();
-      
+
+      const data = await heroesPromise;
+      if (!data) return;
+
       const sortedData = data.sort((a, b) => (a.order || 0) - (b.order || 0));
 
       const formattedData = sortedData.map(hero => ({
@@ -28,6 +47,7 @@ export const useHeroes = (options = {}) => {
         image: hero.images && hero.images.length > 0 ? formatImagePath(hero.images[0].imageUrl || hero.images[0]) : formatImagePath(null)
       }));
 
+      heroesCache = formattedData;
       setHeroes(formattedData);
     } catch (err) {
       setError(err.message);
@@ -40,5 +60,5 @@ export const useHeroes = (options = {}) => {
     fetchHeroes();
   }, []);
 
-  return { heroes, loading, error, refetch: fetchHeroes };
+  return { heroes, loading, error, refetch: () => fetchHeroes(true) };
 };

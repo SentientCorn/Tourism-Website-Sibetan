@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { User, LogOut, LayoutDashboard, ChevronDown, Home } from 'lucide-react';
 import { API_BASE } from '../../services/api';
+import { useContact } from '../../hooks/useContact';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -11,6 +12,10 @@ const Navbar = () => {
   const [logoutMessage, setLogoutMessage] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { contact } = useContact();
+
+  const isHomePage = location.pathname === '/';
 
   // Auth state
   const token = localStorage.getItem('admin_token');
@@ -91,8 +96,8 @@ const Navbar = () => {
               <h1 className="font-poppins font-bold tracking-widest text-base sm:text-lg text-white leading-none mb-1">
                 DESA SIBETAN
               </h1>
-              <p className="font-jakarta text-white/60 text-[10px] sm:text-xs">
-                Kecamatan Bebandem - Karangasem
+              <p className="font-jakarta text-white/60 text-[10px] sm:text-xs line-clamp-1 max-w-[200px]">
+                {contact?.address?.split(',')[1]?.trim() || "Kec. Bebandem - Karangasem"}
               </p>
             </div>
           </div>
@@ -109,54 +114,54 @@ const Navbar = () => {
               ))}
             </ul>
             
-            {/* Auth Button Desktop */}
-            <div className="relative ml-2" ref={dropdownRef}>
-              {token ? (
-                <div>
-                  <button 
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg border border-white/20 transition-colors font-jakarta text-sm font-semibold cursor-pointer"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>{username || 'Admin'}</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-1 animate-fadeIn">
+            {/* Auth Menu Desktop (only visible when logged in) */}
+            {token && (
+              <div className="relative ml-2" ref={dropdownRef}>
+                <button 
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg border border-white/20 transition-colors font-jakarta text-sm font-semibold cursor-pointer"
+                >
+                  <User className="w-4 h-4" />
+                  <span>{username || 'Admin'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-1 animate-fadeIn">
+                    <Link 
+                      to="/admin" 
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand font-medium transition-colors"
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      Dasbor Admin
+                    </Link>
+                    {!isHomePage && (
                       <Link 
-                        to="/admin" 
+                        to="/" 
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand font-medium transition-colors"
                       >
-                        <LayoutDashboard className="w-4 h-4" />
-                        Dasbor Admin
+                        <Home className="w-4 h-4" />
+                        Kembali ke Laman
                       </Link>
-                      <button 
-                        disabled={logoutLoading}
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 font-medium transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                      >
-                        {logoutLoading ? (
-                          <div className="w-4 h-4 border-2 border-rose-600/30 border-t-rose-600 rounded-full animate-spin"></div>
-                        ) : (
-                          <LogOut className="w-4 h-4" />
-                        )}
-                        {logoutLoading ? 'Memproses...' : 'Logout'}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Link 
-                  to="/admin" 
-                  className="flex items-center gap-2 bg-white text-brand hover:bg-gray-100 px-5 py-2 rounded-lg font-jakarta text-sm font-bold transition-colors"
-                >
-                  <User className="w-4 h-4" />
-                  Login Admin
-                </Link>
-              )}
-            </div>
+                    )}
+                    <button 
+                      disabled={logoutLoading}
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 font-medium transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {logoutLoading ? (
+                        <div className="w-4 h-4 border-2 border-rose-600/30 border-t-rose-600 rounded-full animate-spin"></div>
+                      ) : (
+                        <LogOut className="w-4 h-4" />
+                      )}
+                      {logoutLoading ? 'Memproses...' : 'Logout'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -191,11 +196,11 @@ const Navbar = () => {
               </li>
             ))}
             
-            {/* Auth Button Mobile */}
-            <li className="pt-4 border-t border-white/10">
-              {token ? (
+            {/* Auth Menu Mobile (only visible when logged in) */}
+            {token && (
+              <li className="pt-4 border-t border-white/10">
                 <div className="flex flex-col gap-2">
-                  <div className="text-white/60 text-xs mb-1">Masuk sebagai: {username}</div>
+                  <div className="text-white/60 text-xs mb-1">Masuk sebagai: {username || 'Admin'}</div>
                   <Link 
                     to="/admin" 
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -204,6 +209,16 @@ const Navbar = () => {
                     <LayoutDashboard className="w-4 h-4" />
                     Dasbor Admin
                   </Link>
+                  {!isHomePage && (
+                    <Link 
+                      to="/" 
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-2 py-2 text-white hover:text-brand-light transition-colors"
+                    >
+                      <Home className="w-4 h-4" />
+                      Kembali ke Laman
+                    </Link>
+                  )}
                   <button 
                     disabled={logoutLoading}
                     onClick={() => {
@@ -220,17 +235,8 @@ const Navbar = () => {
                     {logoutLoading ? 'Memproses...' : 'Logout'}
                   </button>
                 </div>
-              ) : (
-                <Link 
-                  to="/admin" 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-2 bg-white/10 text-white hover:bg-white/20 py-2.5 px-4 rounded-lg transition-colors justify-center font-bold"
-                >
-                  <User className="w-4 h-4" />
-                  Login Admin
-                </Link>
-              )}
-            </li>
+              </li>
+            )}
           </ul>
         </div>
       )}

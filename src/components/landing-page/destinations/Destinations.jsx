@@ -32,7 +32,13 @@ const Destinations = () => {
         ) : (
           <>
             {/* Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-12 mb-16">
+            <div className={`grid gap-8 xl:gap-12 mb-16 ${
+              visibleDestinations.length === 1 
+                ? 'grid-cols-1 max-w-md md:max-w-lg mx-auto' 
+                : visibleDestinations.length === 2 
+                ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto' 
+                : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+            }`}>
               {visibleDestinations.map((destination) => (
                 <DestinationCard 
                   key={destination.id} 

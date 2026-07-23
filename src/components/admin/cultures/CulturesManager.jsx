@@ -6,6 +6,7 @@ import ImageUploader from '../../ui/ImageUploader';
 import AdminActionBar from '../../ui/AdminActionBar';
 import AdminFormCard from '../../ui/AdminFormCard';
 import AdminTable from '../../ui/AdminTable';
+import TagInput from '../../ui/TagInput';
 import { useCultures } from '../../../hooks/useCultures';
 
 const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
@@ -233,15 +234,19 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
       >
         <div>
           <label className="block font-bold mb-1">Nama Kesenian/Adat*</label>
-          <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Tradisi Ngusaba Subak & Tari Rejang" />
         </div>
         <div>
-          <label className="block font-bold mb-1">Kategori (mis: Tari, Musik, Tradisi)*</label>
-          <input type="text" required value={form.tag} onChange={e => setForm({...form, tag: e.target.value})} className="w-full border p-2 rounded" />
+          <label className="block font-bold mb-1">Kategori / Tag*</label>
+          <TagInput 
+            value={form.tag} 
+            onChange={(val) => setForm({...form, tag: val})} 
+            placeholder="Ketik tag lalu tekan Enter (mis: Tari, Tradisi, Musik)"
+          />
         </div>
         <div className="md:col-span-2">
           <label className="block font-bold mb-1">Deskripsi*</label>
-          <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" />
+          <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Upacara adat dan tradisi kebudayaan Hindu yang dilaksanakan oleh warga Desa Sibetan secara berkala sebagai wujud rasa syukur atas kelestarian alam dan kebun salak..." />
         </div>
 
         {editId && existingImages.length > 0 && (
@@ -312,8 +317,7 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
                 ...previewItem,
                 title: previewItem.title,
                 tag: previewItem.tag || 'Budaya',
-                description: previewItem.description || '-',
-                details: previewItem.description || '-'
+                description: previewItem.description || '-'
               }}
             />
           </div>

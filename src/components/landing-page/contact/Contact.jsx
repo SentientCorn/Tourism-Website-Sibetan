@@ -1,8 +1,24 @@
 import React from 'react';
 import SectionHeader from '../../ui/SectionHeader';
-import contactData from '../../../data/contact.json';
+import { useContact } from '../../../hooks/useContact';
 
 const Contact = () => {
+  const { contact: contactData, loading } = useContact();
+
+  if (loading) {
+    return (
+      <section id="contact" className="py-20 px-6 md:px-12 lg:px-12 xl:px-20 bg-surface flex justify-center items-center">
+        <div className="w-8 h-8 border-4 border-brand/30 border-t-brand rounded-full animate-spin"></div>
+      </section>
+    );
+  }
+
+  const contactItems = [
+    { title: "Alamat Kantor", value: contactData.address },
+    { title: "Telepon / WA", value: contactData.phone },
+    { title: "Website", value: contactData.website }
+  ];
+
   return (
     <section id="contact" className="py-20 px-6 md:px-12 lg:px-12 xl:px-20 bg-surface">
       <div className="max-w-5xl mx-auto">
@@ -17,7 +33,7 @@ const Contact = () => {
           
           {/* Left Side: Contact List */}
           <div className="flex-1 flex flex-col gap-4">
-            {contactData.items.map((item, index) => (
+            {contactItems.map((item, index) => (
               <div 
                 key={index} 
                 className="bg-transparent border border-gray-200 rounded-xl p-5 flex items-start gap-3"

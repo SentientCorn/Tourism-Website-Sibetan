@@ -30,7 +30,11 @@ const Traditions = () => {
         ) : (
           <>
             {/* Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 xl:gap-12 mb-16">
+            <div className={`grid gap-8 xl:gap-12 mb-16 ${
+              visibleTraditions.length === 1 
+                ? 'grid-cols-1 max-w-xl md:max-w-2xl mx-auto' 
+                : 'grid-cols-1 md:grid-cols-2'
+            }`}>
               {visibleTraditions.map((tradition) => (
                 <TraditionCard key={tradition.id} tradition={tradition} />
               ))}

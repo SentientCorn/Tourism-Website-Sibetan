@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ImageWithSkeleton from '../../ui/ImageWithSkeleton';
 
 const DestinationModalContent = ({ destination }) => {
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
@@ -17,31 +18,29 @@ const DestinationModalContent = ({ destination }) => {
 
   return (
     <div className="flex flex-col">
-      {/* Header Image Carousel */}
-      <div className="relative h-64 sm:h-80 w-full group">
-        <img 
-          loading="lazy"
-          src={images[currentImageIdx]} 
-          alt={destination.title} 
-          className="w-full h-full object-cover"
-        />
-        
+      {/* Header Image Carousel with Skeleton */}
+      <ImageWithSkeleton
+        key={currentImageIdx}
+        src={images[currentImageIdx]}
+        alt={destination.title}
+        containerClassName="h-64 sm:h-80 w-full group"
+      >
         {images.length > 1 && (
           <>
-            <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+            <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
             </button>
-            <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+            <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
             </button>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
               {images.map((_, idx) => (
                 <div key={idx} className={`w-2 h-2 rounded-full transition-colors ${idx === currentImageIdx ? 'bg-white' : 'bg-white/50'}`} />
               ))}
             </div>
           </>
         )}
-      </div>
+      </ImageWithSkeleton>
 
       {/* Content */}
       <div className="p-6 sm:p-8">
@@ -84,7 +83,7 @@ const DestinationModalContent = ({ destination }) => {
               <h3 className="font-poppins font-bold text-xl text-brand">Lokasi</h3>
             </div>
             
-            <div className="relative w-full h-64 sm:h-80 rounded-xl overflow-hidden border border-gray-200 mb-4">
+            <div className="relative w-full h-64 sm:h-80 rounded-xl overflow-hidden border border-gray-200 mb-4 z-0 bg-slate-100 shadow-sm">
               <iframe 
                 src={destination.mapEmbedUrl}
                 width="100%" 
@@ -93,9 +92,10 @@ const DestinationModalContent = ({ destination }) => {
                 allowFullScreen="" 
                 loading="lazy" 
                 referrerPolicy="no-referrer-when-downgrade"
-                className="absolute inset-0"
+                className="w-full h-full"
               ></iframe>
             </div>
+
             {destination.mapLink && (
               <a 
                 href={destination.mapLink}

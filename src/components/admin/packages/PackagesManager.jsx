@@ -6,6 +6,7 @@ import ImageUploader from '../../ui/ImageUploader';
 import AdminActionBar from '../../ui/AdminActionBar';
 import AdminFormCard from '../../ui/AdminFormCard';
 import AdminTable from '../../ui/AdminTable';
+import TagInput from '../../ui/TagInput';
 import { usePackages } from '../../../hooks/usePackages';
 
 const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
@@ -17,11 +18,11 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
   const [existingImages, setExistingImages] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [form, setForm] = useState({
-    title: '', price: '', duration: '', description: '', facilities: '', capacity: '', contactName: '', contactPhone: '', contactNote: ''
+    title: '', type: 'WISATA', price: '', duration: '', description: '', facilities: '', capacity: '', contactName: '', contactPhone: '', contactNote: ''
   });
 
   const resetForm = () => {
-    setForm({ title: '', price: '', duration: '', description: '', facilities: '', capacity: '', contactName: '', contactPhone: '', contactNote: '' });
+    setForm({ title: '', type: 'WISATA', price: '', duration: '', description: '', facilities: '', capacity: '', contactName: '', contactPhone: '', contactNote: '' });
     setExistingImages([]);
     setSelectedFiles([]);
     setEditId(null);
@@ -29,16 +30,20 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
   };
 
   const handleEditClick = (item) => {
+    const rawPriceVal = item.rawPrice !== undefined ? item.rawPrice : item.price;
+    const cleanPrice = String(rawPriceVal || '').replace(/[^0-9.]/g, '');
+
     setForm({
       title: item.title || '',
-      price: item.price !== undefined && item.price !== null ? String(item.price) : '',
-      duration: item.duration || '',
+      type: item.type || 'WISATA',
+      price: cleanPrice,
+      duration: item.duration || item.durationOrType || '',
       description: item.description || '',
-      facilities: item.facilities || '',
-      capacity: item.capacity || '',
-      contactName: item.contactName || item.contact?.contactName || '',
-      contactPhone: item.contactPhone || item.contact?.contactPhone || '',
-      contactNote: item.contactNote || item.contact?.contactNote || ''
+      facilities: Array.isArray(item.facilities) ? item.facilities.join('\n') : (item.facilities || ''),
+      capacity: item.capacity || item.maxPax || '',
+      contactName: item.contactName || item.contact?.name || item.contact?.contactName || '',
+      contactPhone: item.contactPhone || item.contact?.phone || item.contact?.contactPhone || '',
+      contactNote: item.contactNote || item.contact?.note || item.contact?.contactNote || ''
     });
     setExistingImages(item.originalImages || []);
     setSelectedFiles([]);
@@ -96,7 +101,7 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
       showMessage('error', 'Silakan login terlebih dahulu untuk menghapus data');
       return;
     }
-    if (!window.confirm('Yakin ingin menghapus data ini dari database?')) return;
+    if (!window.confirm('Yakin ingin menghapus paket wisata ini?')) return;
 
     setActionLoading(true);
     try {
@@ -112,7 +117,6 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
       const data = await res.json();
       if (res.ok) {
         showMessage('success', data.message || 'Data berhasil dihapus');
-        if (editId === id) resetForm();
         fetchData();
       } else {
         showMessage('error', data.error || 'Gagal menghapus data');
@@ -174,7 +178,12 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
   const columns = [
     { header: 'ID', key: 'id', className: 'font-mono font-bold text-slate-700' },
     { header: 'Judul', key: 'title', className: 'font-bold text-slate-900' },
-    { header: 'Harga', key: 'price', className: 'text-emerald-600 font-bold', render: (p) => `Rp ${Number(p.price).toLocaleString('id-ID')}` },
+    { header: 'Kategori', key: 'type', className: 'font-bold text-blue-600', render: (p) => p.type === 'AKOMODASI' ? 'Akomodasi' : p.type === 'WISATA_AKOMODASI' ? 'Wisata & Akomodasi' : 'Wisata' },
+    { header: 'Harga', key: 'price', className: 'text-emerald-600 font-bold', render: (p) => {
+        const num = Number(p.rawPrice !== undefined ? p.rawPrice : String(p.price || '').replace(/[^0-9.]/g, ''));
+        return isNaN(num) || !num ? (p.price || 'Rp 0') : `Rp ${num.toLocaleString('id-ID')}`;
+      }
+    },
     { header: 'Durasi', key: 'duration', className: 'text-slate-600' },
     { header: 'Fasilitas', key: 'facilities', className: 'text-slate-600 max-w-xs truncate' },
     { header: 'Aksi', key: 'action', headerClassName: 'text-right', className: 'text-right space-x-2', render: (p) => (
@@ -218,7 +227,7 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
             resetForm();
           } else {
             setEditId(null);
-            setForm({ title: '', price: '', duration: '', description: '', facilities: '', capacity: '', contactName: '', contactPhone: '', contactNote: '' });
+            setForm({ title: '', type: 'WISATA', price: '', duration: '', description: '', facilities: '', capacity: '', contactName: '', contactPhone: '', contactNote: '' });
             setExistingImages([]);
             setSelectedFiles([]);
             setShowAddForm(true);
@@ -239,39 +248,51 @@ const PackagesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
       >
         <div>
           <label className="block font-bold mb-1">Nama Paket*</label>
-          <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Paket Trekking Salak & Homestay" />
         </div>
         <div>
-          <label className="block font-bold mb-1">Harga (mis: 250000)*</label>
-          <input type="number" required value={form.price} onChange={e => setForm({...form, price: e.target.value})} className="w-full border p-2 rounded" />
+          <label className="block font-bold mb-1">Kategori*</label>
+          <select required value={form.type} onChange={e => setForm({...form, type: e.target.value})} className="w-full border p-2 rounded bg-white">
+            <option value="WISATA">Wisata Saja</option>
+            <option value="AKOMODASI">Akomodasi Saja</option>
+            <option value="WISATA_AKOMODASI">Wisata & Akomodasi</option>
+          </select>
         </div>
         <div>
-          <label className="block font-bold mb-1">Durasi (mis: 1 Hari / 2 Hari)*</label>
-          <input type="text" required value={form.duration} onChange={e => setForm({...form, duration: e.target.value})} className="w-full border p-2 rounded" />
+          <label className="block font-bold mb-1">Harga (Angka saja)*</label>
+          <input type="number" required value={form.price} onChange={e => setForm({...form, price: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: 250000" />
+        </div>
+        <div>
+          <label className="block font-bold mb-1">Durasi*</label>
+          <input type="text" required value={form.duration} onChange={e => setForm({...form, duration: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: 1 Hari (09.00 - 16.00) atau 2D1N" />
         </div>
         <div className="md:col-span-3">
           <label className="block font-bold mb-1">Deskripsi*</label>
-          <textarea required rows={2} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" />
+          <textarea required rows={2} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Paket wisata edukasi petik salak lengkap dengan pemandu lokal, makan siang tradisional khas Sibetan, serta fasilitas penginapan yang asri..." />
         </div>
         <div className="md:col-span-2">
-          <label className="block font-bold mb-1">Fasilitas (Pisahkan dengan koma)*</label>
-          <input type="text" required value={form.facilities} onChange={e => setForm({...form, facilities: e.target.value})} className="w-full border p-2 rounded" />
+          <label className="block font-bold mb-1">Fasilitas*</label>
+          <TagInput 
+            value={form.facilities} 
+            onChange={(val) => setForm({...form, facilities: val})} 
+            placeholder="Ketik fasilitas lalu tekan Enter (mis: Makan Siang, Pemandu Lokal, WiFi, AC)"
+          />
         </div>
         <div>
-          <label className="block font-bold mb-1">Kapasitas (mis: 2-10 Orang)</label>
-          <input type="text" value={form.capacity} onChange={e => setForm({...form, capacity: e.target.value})} className="w-full border p-2 rounded" />
+          <label className="block font-bold mb-1">Kapasitas</label>
+          <input type="text" value={form.capacity} onChange={e => setForm({...form, capacity: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Min 2 - Maks 10 Orang" />
         </div>
         <div>
           <label className="block font-bold mb-1">Nama Kontak</label>
-          <input type="text" value={form.contactName} onChange={e => setForm({...form, contactName: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" value={form.contactName} onChange={e => setForm({...form, contactName: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Pak Suwena (Pengelola Pokdarwis)" />
         </div>
         <div>
           <label className="block font-bold mb-1">No. WhatsApp Kontak</label>
-          <input type="text" value={form.contactPhone} onChange={e => setForm({...form, contactPhone: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" value={form.contactPhone} onChange={e => setForm({...form, contactPhone: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: 081234567890" />
         </div>
         <div>
           <label className="block font-bold mb-1">Catatan Kontak</label>
-          <input type="text" value={form.contactNote} onChange={e => setForm({...form, contactNote: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" value={form.contactNote} onChange={e => setForm({...form, contactNote: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Harap reservasikan H-2 sebelum kedatangan" />
         </div>
 
         {editId && existingImages.length > 0 && (

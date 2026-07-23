@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Sparkles, Package, Image as ImageIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { MapPin, Sparkles, Package, Image as ImageIcon, AlertCircle, CheckCircle2, Phone } from 'lucide-react';
 import { API_BASE, SERVER_ORIGIN } from '../../services/api';
 import AdminLogin from '../../components/admin/auth/AdminLogin';
 import AdminHeader from '../../components/admin/layout/AdminHeader';
@@ -8,6 +8,8 @@ import DestinationsManager from '../../components/admin/destinations/Destination
 import CulturesManager from '../../components/admin/cultures/CulturesManager';
 import PackagesManager from '../../components/admin/packages/PackagesManager';
 import HeroesManager from '../../components/admin/heroes/HeroesManager';
+import ContactManager from '../../components/admin/contact/ContactManager';
+import Toast from '../../components/ui/Toast';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('destinations');
@@ -20,8 +22,7 @@ const AdminDashboard = () => {
   const [logoutLoading, setLogoutLoading] = useState(false);
 
   const showMessage = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 4000);
+    setMessage({ type, text, id: Date.now() });
   };
 
   const handleUnauthorized = () => {
@@ -51,21 +52,13 @@ const AdminDashboard = () => {
     { id: 'cultures', label: 'Kesenian & Adat', icon: Sparkles },
     { id: 'packages', label: 'Paket Wisata & Akomodasi', icon: Package },
     { id: 'heroes', label: 'Gambar Laman Utama', icon: ImageIcon },
+    { id: 'contact', label: 'Pengaturan Kontak', icon: Phone },
   ];
 
   if (!token) {
     return (
       <div className="relative">
-        {message && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 min-w-[300px]">
-            <div className={`px-4 py-3 rounded-xl text-sm flex items-center gap-2 border shadow-lg ${
-              message.type === 'success' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-rose-50 border-rose-300 text-rose-800'
-            }`}>
-              {message.type === 'success' ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-              <span className="font-medium">{message.text}</span>
-            </div>
-          </div>
-        )}
+        <Toast message={message} onClose={() => setMessage(null)} />
         <AdminLogin 
           API_BASE={API_BASE} 
           onLoginSuccess={(newToken, newUsername) => {
@@ -88,15 +81,7 @@ const AdminDashboard = () => {
       />
 
       <main className="max-w-6xl mx-auto px-6 mt-6">
-        {/* Status Notification */}
-        {message && (
-          <div className={`mb-4 px-4 py-2.5 rounded-lg text-sm flex items-center gap-2 border ${
-            message.type === 'success' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-rose-50 border-rose-300 text-rose-800'
-          }`}>
-            {message.type === 'success' ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-            <span>{message.text}</span>
-          </div>
-        )}
+        <Toast message={message} onClose={() => setMessage(null)} />
 
         <AdminTabs 
           tabs={tabs} 
@@ -105,7 +90,7 @@ const AdminDashboard = () => {
           onRefresh={() => setRefreshKey(k => k + 1)} 
         />
 
-        {activeTab === 'destinations' && (
+        <div className={activeTab === 'destinations' ? 'block' : 'hidden'}>
           <DestinationsManager 
             key={`destinations-${refreshKey}`}
             token={token}
@@ -114,9 +99,9 @@ const AdminDashboard = () => {
             showMessage={showMessage}
             onUnauthorized={handleUnauthorized}
           />
-        )}
+        </div>
 
-        {activeTab === 'cultures' && (
+        <div className={activeTab === 'cultures' ? 'block' : 'hidden'}>
           <CulturesManager 
             key={`cultures-${refreshKey}`}
             token={token}
@@ -125,9 +110,9 @@ const AdminDashboard = () => {
             showMessage={showMessage}
             onUnauthorized={handleUnauthorized}
           />
-        )}
+        </div>
 
-        {activeTab === 'packages' && (
+        <div className={activeTab === 'packages' ? 'block' : 'hidden'}>
           <PackagesManager 
             key={`packages-${refreshKey}`}
             token={token}
@@ -136,9 +121,9 @@ const AdminDashboard = () => {
             showMessage={showMessage}
             onUnauthorized={handleUnauthorized}
           />
-        )}
+        </div>
 
-        {activeTab === 'heroes' && (
+        <div className={activeTab === 'heroes' ? 'block' : 'hidden'}>
           <HeroesManager 
             key={`heroes-${refreshKey}`}
             token={token}
@@ -147,7 +132,17 @@ const AdminDashboard = () => {
             showMessage={showMessage}
             onUnauthorized={handleUnauthorized}
           />
-        )}
+        </div>
+
+        <div className={activeTab === 'contact' ? 'block' : 'hidden'}>
+          <ContactManager 
+            key={`contact-${refreshKey}`}
+            token={token}
+            API_BASE={API_BASE}
+            showMessage={showMessage}
+            onUnauthorized={handleUnauthorized}
+          />
+        </div>
       </main>
     </div>
   );

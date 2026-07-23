@@ -1,27 +1,40 @@
 import React from 'react';
+import ImageWithSkeleton from '../../ui/ImageWithSkeleton';
 
 const PackageCard = ({ pkg, onClickDetail }) => {
+  const getTypeLabel = (type) => {
+    if (type === 'AKOMODASI') return 'Akomodasi';
+    if (type === 'WISATA_AKOMODASI') return 'Wisata & Akomodasi';
+    return 'Wisata'; // WISATA atau default
+  };
+
+  const getTypeColor = (type) => {
+    if (type === 'AKOMODASI') return 'bg-emerald-500 text-white';
+    if (type === 'WISATA_AKOMODASI') return 'bg-violet-500 text-white';
+    return 'bg-accent text-white'; // default Wisata (kuning/orange)
+  };
+
   return (
-    <div className="bg-surface-card rounded-xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-300">
-      {/* Image Container */}
-      <div className="relative h-56 w-full">
-        <img 
-          loading="lazy"
-          src={pkg.image} 
-          alt={pkg.title} 
-          className="w-full h-full object-cover"
-        />
-        
+    <div 
+      onClick={onClickDetail}
+      className="bg-surface-card rounded-xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-300 cursor-pointer group"
+    >
+      {/* Image Container with Skeleton */}
+      <ImageWithSkeleton
+        src={pkg.image}
+        alt={pkg.title}
+        containerClassName="h-56 w-full"
+      >
         {/* Type Tag (Top Left) */}
-        <div className="absolute top-3 left-3 bg-accent text-white text-xs font-semibold px-3 py-1.5 rounded-full font-jakarta">
-          {pkg.type}
+        <div className={`absolute top-3 left-3 text-xs font-semibold px-3 py-1.5 rounded-full font-jakarta shadow-sm ${getTypeColor(pkg.type)}`}>
+          {getTypeLabel(pkg.type)}
         </div>
 
         {/* Photo Count (Bottom Right) */}
         <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full font-jakarta">
           {pkg.photoCount} foto
         </div>
-      </div>
+      </ImageWithSkeleton>
 
       {/* Content */}
       <div className="p-6 flex flex-col flex-grow">

@@ -205,15 +205,15 @@ const HeroesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthor
       >
         <div>
           <label className="block font-bold mb-1">Judul Banner</label>
-          <input type="text" value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Selamat Datang Di Desa Sibetan" />
         </div>
         <div>
           <label className="block font-bold mb-1">Sub Judul Banner</label>
-          <input type="text" value={form.subtitle} onChange={e => setForm({...form, subtitle: e.target.value})} className="w-full border p-2 rounded" />
+          <input type="text" value={form.subtitle} onChange={e => setForm({...form, subtitle: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Karangasem, Bali" />
         </div>
         <div>
-          <label className="block font-bold mb-1">Urutan (Angka, mis: 0, 1, 2)</label>
-          <input type="number" value={form.order} onChange={e => setForm({...form, order: e.target.value})} className="w-full border p-2 rounded" />
+          <label className="block font-bold mb-1">Urutan Tampil (Angka)</label>
+          <input type="number" value={form.order} onChange={e => setForm({...form, order: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: 0" />
         </div>
 
         {editId && existingImageUrl && (

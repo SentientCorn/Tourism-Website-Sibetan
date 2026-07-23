@@ -6,6 +6,7 @@ import Traditions from '../components/landing-page/traditions/Traditions';
 import Packages from '../components/landing-page/packages/Packages';
 import Contact from '../components/landing-page/contact/Contact';
 import Footer from '../components/layout/Footer';
+import ScrollToTop from '../components/ui/ScrollToTop';
 
 const LandingPage = () => {
   return (
@@ -17,6 +18,7 @@ const LandingPage = () => {
       <Packages />
       <Contact />
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };

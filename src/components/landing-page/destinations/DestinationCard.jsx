@@ -1,20 +1,22 @@
 import React from 'react';
+import ImageWithSkeleton from '../../ui/ImageWithSkeleton';
 
 const DestinationCard = ({ destination, onClickDetail }) => {
   return (
-    <div className="bg-surface-card rounded-xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-300">
-      {/* Image Container */}
-      <div className="relative h-64 sm:h-72 w-full">
-        <img 
-          loading="lazy"
-          src={destination.image} 
-          alt={destination.title} 
-          className="w-full h-full object-cover"
-        />
+    <div 
+      onClick={onClickDetail}
+      className="bg-surface-card rounded-xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-300 cursor-pointer group"
+    >
+      {/* Image Container with Skeleton */}
+      <ImageWithSkeleton
+        src={destination.image}
+        alt={destination.title}
+        containerClassName="h-64 sm:h-72 w-full"
+      >
         <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full font-jakarta">
           {destination.photoCount} foto
         </div>
-      </div>
+      </ImageWithSkeleton>
 
       {/* Content */}
       <div className="p-6 lg:p-8 flex flex-col flex-grow">
