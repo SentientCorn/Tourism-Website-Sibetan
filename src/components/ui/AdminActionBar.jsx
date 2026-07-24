@@ -11,10 +11,15 @@ const AdminActionBar = ({ title, isAddMode, onAddClick }) => {
       </div>
       
       <button
+        type="button"
         onClick={onAddClick}
-        className="bg-[#1B3461] hover:bg-blue-900 text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+        className={`px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+          isAddMode
+            ? 'bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200'
+            : 'bg-[#1B3461] hover:bg-[#1B3461]/90 text-white shadow-xs'
+        }`}
       >
-        <Plus className="w-4 h-4" />
+        <Plus className={`w-4 h-4 transition-transform duration-300 ${isAddMode ? 'rotate-45' : 'rotate-0'}`} />
         <span>{isAddMode ? 'Tutup Form' : 'Tambah Data Baru'}</span>
       </button>
     </div>

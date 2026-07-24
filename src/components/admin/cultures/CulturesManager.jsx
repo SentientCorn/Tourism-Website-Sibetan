@@ -172,42 +172,44 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
     { header: 'Tag', key: 'tag', render: (c) => <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold">{c.tag}</span> },
     { header: 'Deskripsi', key: 'description', className: 'text-slate-600 max-w-md truncate' },
     { header: 'Gambar', key: 'images', className: 'text-slate-600', render: (c) => `${c.originalImages?.length || 0} foto` },
-    { header: 'Aksi', key: 'action', headerClassName: 'text-right', className: 'text-right space-x-2', render: (c) => (
-      <>
-        <button
-          type="button"
-          onClick={() => setPreviewItem(c)}
-          className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
-        >
-          <Eye className="w-3.5 h-3.5" />
-          Preview
-        </button>
-        <button
-          type="button"
-          onClick={() => handleEditClick(c)}
-          className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
-        >
-          <Edit className="w-3.5 h-3.5" />
-          Edit
-        </button>
-        <button
-          type="button"
-          disabled={actionLoading}
-          onClick={() => handleDelete(c.id)}
-          className="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-          Hapus
-        </button>
-      </>
-    )}
+    {
+      header: 'Aksi', key: 'action', headerClassName: 'text-right', className: 'text-right space-x-2', render: (c) => (
+        <>
+          <button
+            type="button"
+            onClick={() => setPreviewItem(c)}
+            className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            Preview
+          </button>
+          <button
+            type="button"
+            onClick={() => handleEditClick(c)}
+            className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
+          >
+            <Edit className="w-3.5 h-3.5" />
+            Edit
+          </button>
+          <button
+            type="button"
+            disabled={actionLoading}
+            onClick={() => handleDelete(c.id)}
+            className="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Hapus
+          </button>
+        </>
+      )
+    }
   ];
 
   return (
     <div>
-      <AdminActionBar 
-        title="Kesenian & Adat" 
-        isAddMode={showAddForm && !editId} 
+      <AdminActionBar
+        title="Kesenian & Adat"
+        isAddMode={showAddForm && !editId}
         onAddClick={() => {
           if (showAddForm && !editId) {
             resetForm();
@@ -218,7 +220,7 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
             setSelectedFiles([]);
             setShowAddForm(true);
           }
-        }} 
+        }}
       />
 
       <AdminFormCard
@@ -234,19 +236,19 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
       >
         <div>
           <label className="block font-bold mb-1">Nama Kesenian/Adat*</label>
-          <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Tradisi Ngusaba Subak & Tari Rejang" />
+          <input type="text" required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full border p-2 rounded" placeholder="Contoh: Tradisi Ngusaba Subak & Tari Rejang" />
         </div>
         <div>
           <label className="block font-bold mb-1">Kategori / Tag*</label>
-          <TagInput 
-            value={form.tag} 
-            onChange={(val) => setForm({...form, tag: val})} 
+          <TagInput
+            value={form.tag}
+            onChange={(val) => setForm({ ...form, tag: val })}
             placeholder="Ketik tag lalu tekan Enter (mis: Tari, Tradisi, Musik)"
           />
         </div>
         <div className="md:col-span-2">
           <label className="block font-bold mb-1">Deskripsi*</label>
-          <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Upacara adat dan tradisi kebudayaan Hindu yang dilaksanakan oleh warga Desa Sibetan secara berkala sebagai wujud rasa syukur atas kelestarian alam dan kebun salak..." />
+          <textarea required rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full border p-2 rounded" placeholder="Contoh: Upacara adat dan tradisi kebudayaan Hindu yang dilaksanakan oleh warga Desa Sibetan secara berkala sebagai wujud rasa syukur atas kelestarian alam dan kebun salak..." />
         </div>
 
         {editId && existingImages.length > 0 && (
@@ -270,7 +272,7 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
         )}
 
         <div className="md:col-span-2 mt-2">
-          <ImageUploader 
+          <ImageUploader
             editMode={!!editId}
             label={editId ? 'Tambah Foto Baru (Akan ditambahkan ke daftar gambar di atas):' : 'Upload Foto Budaya (Multiple)*'}
             onFilesSelected={(newFiles) => setSelectedFiles(prev => [...prev, ...newFiles])}
@@ -300,7 +302,7 @@ const CulturesManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauth
         </div>
       </AdminFormCard>
 
-      <AdminTable 
+      <AdminTable
         loading={loading}
         data={cultures}
         columns={columns}

@@ -23,15 +23,17 @@ const sanitizeMapEmbedUrl = (rawUrl) => {
 
   if (source.includes('maps/embed')) return source;
 
-  if (source.includes('google.com/maps') || source.includes('maps.google')) {
+  if (source.includes('google.com/maps') || source.includes('maps.google') || source.includes('goo.gl')) {
     const atMatch = source.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
     if (atMatch) return `https://maps.google.com/maps?q=${atMatch[1]},${atMatch[2]}(Kantor%20Desa%20Sibetan)&hl=id&z=15&output=embed`;
     const pbMatch = source.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
     if (pbMatch) return `https://maps.google.com/maps?q=${pbMatch[1]},${pbMatch[2]}(Kantor%20Desa%20Sibetan)&hl=id&z=15&output=embed`;
+    const qCoordMatch = source.match(/[?&](?:q|ll|query)=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (qCoordMatch) return `https://maps.google.com/maps?q=${qCoordMatch[1]},${qCoordMatch[2]}(Kantor%20Desa%20Sibetan)&hl=id&z=15&output=embed`;
   }
 
   if (source.startsWith('http') && !source.includes('output=embed')) {
-    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&hl=id&z=15&output=embed`;
+    return fallbackContactData.mapEmbedUrl;
   }
 
   return source;

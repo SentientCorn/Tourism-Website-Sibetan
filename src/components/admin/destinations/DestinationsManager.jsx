@@ -6,8 +6,7 @@ import ImageUploader from '../../ui/ImageUploader';
 import AdminActionBar from '../../ui/AdminActionBar';
 import AdminFormCard from '../../ui/AdminFormCard';
 import AdminTable from '../../ui/AdminTable';
-import MapPicker from '../../ui/MapPicker';
-import { useDestinations } from '../../../hooks/useDestinations';
+import { useDestinations, isValidGoogleMapsLink, getGoogleMapsEmbedUrl, getGoogleMapsLink } from '../../../hooks/useDestinations';
 
 const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUnauthorized }) => {
   const { destinations, loading, refetch: fetchData } = useDestinations({ onUnauthorized });
@@ -18,11 +17,11 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
   const [existingImages, setExistingImages] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [form, setForm] = useState({
-    title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '', latitude: '', longitude: ''
+    title: '', address: '', mapsSource: '', openHours: '', description: '', tips: ''
   });
 
   const resetForm = () => {
-    setForm({ title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '', latitude: '', longitude: '' });
+    setForm({ title: '', address: '', mapsSource: '', openHours: '', description: '', tips: '' });
     setExistingImages([]);
     setSelectedFiles([]);
     setEditId(null);
@@ -36,9 +35,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       mapsSource: item.mapsSource || '',
       openHours: item.openHours || '',
       description: item.description || '',
-      tips: item.tips || '',
-      latitude: item.latitude !== null && item.latitude !== undefined ? String(item.latitude) : '',
-      longitude: item.longitude !== null && item.longitude !== undefined ? String(item.longitude) : ''
+      tips: item.tips || ''
     });
     setExistingImages(item.originalImages || []);
     setSelectedFiles([]);
@@ -178,49 +175,51 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
     { header: 'Judul', key: 'title', className: 'font-bold text-slate-900' },
     { header: 'Alamat', key: 'address', className: 'text-slate-600' },
     { header: 'Jam Buka', key: 'openHours', className: 'text-slate-600' },
-    { 
-      header: 'Koordinat', 
-      key: 'coords', 
-      className: 'text-slate-600 font-mono text-xs', 
-      render: (d) => (d.latitude && d.longitude) ? `${Number(d.latitude).toFixed(4)}, ${Number(d.longitude).toFixed(4)}` : '-' 
+    {
+      header: 'Koordinat',
+      key: 'coords',
+      className: 'text-slate-600 font-mono text-xs',
+      render: (d) => (d.latitude && d.longitude) ? `${Number(d.latitude).toFixed(4)}, ${Number(d.longitude).toFixed(4)}` : '-'
     },
     { header: 'Gambar', key: 'images', className: 'text-slate-600', render: (d) => `${d.originalImages?.length || 0} foto` },
-    { header: 'Aksi', key: 'action', headerClassName: 'text-right', className: 'text-right space-x-2', render: (d) => (
-      <>
-        <button
-          type="button"
-          onClick={() => setPreviewItem(d)}
-          className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
-        >
-          <Eye className="w-3.5 h-3.5" />
-          Preview
-        </button>
-        <button
-          type="button"
-          onClick={() => handleEditClick(d)}
-          className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
-        >
-          <Edit className="w-3.5 h-3.5" />
-          Edit
-        </button>
-        <button
-          type="button"
-          disabled={actionLoading}
-          onClick={() => handleDelete(d.id)}
-          className="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-          Hapus
-        </button>
-      </>
-    )}
+    {
+      header: 'Aksi', key: 'action', headerClassName: 'text-right', className: 'text-right space-x-2', render: (d) => (
+        <>
+          <button
+            type="button"
+            onClick={() => setPreviewItem(d)}
+            className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            Preview
+          </button>
+          <button
+            type="button"
+            onClick={() => handleEditClick(d)}
+            className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
+          >
+            <Edit className="w-3.5 h-3.5" />
+            Edit
+          </button>
+          <button
+            type="button"
+            disabled={actionLoading}
+            onClick={() => handleDelete(d.id)}
+            className="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded font-bold inline-flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Hapus
+          </button>
+        </>
+      )
+    }
   ];
 
   return (
     <div>
-      <AdminActionBar 
-        title="Destinasi Wisata" 
-        isAddMode={showAddForm && !editId} 
+      <AdminActionBar
+        title="Destinasi Wisata"
+        isAddMode={showAddForm && !editId}
         onAddClick={() => {
           if (showAddForm && !editId) {
             resetForm();
@@ -231,7 +230,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
             setSelectedFiles([]);
             setShowAddForm(true);
           }
-        }} 
+        }}
       />
 
       <AdminFormCard
@@ -247,45 +246,34 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
       >
         <div>
           <label className="block font-bold mb-1">Nama Wisata*</label>
-          <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Agrowisata Salak Sibetan" />
+          <input type="text" required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full border p-2 rounded" placeholder="Contoh: Agrowisata Salak Sibetan" />
         </div>
         <div>
           <label className="block font-bold mb-1">Alamat*</label>
-          <input type="text" required value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Banjar Telaga, Desa Sibetan, Bebandem, Karangasem" />
+          <input type="text" required value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="w-full border p-2 rounded" placeholder="Contoh: Banjar Telaga, Desa Sibetan, Bebandem, Karangasem" />
         </div>
         <div>
-          <label className="block font-bold mb-1">URL Google Maps (Opsional jika pakai Peta)</label>
-          <input type="text" value={form.mapsSource} onChange={e => setForm({...form, mapsSource: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: https://maps.google.com/?q=-8.4410,115.5390" />
+          <label className="block font-bold mb-1">Jam Buka</label>
+          <input type="text" value={form.openHours} onChange={e => setForm({ ...form, openHours: e.target.value })} className="w-full border p-2 rounded" placeholder="Contoh: Setiap Hari, 08:00 - 17:00 WITA (Opsional)" />
         </div>
+
         <div>
-          <label className="block font-bold mb-1">Jam Buka*</label>
-          <input type="text" required value={form.openHours} onChange={e => setForm({...form, openHours: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Setiap Hari, 08:00 - 17:00 WITA" />
-        </div>
-        <div className="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2">
-          <label className="block font-bold mb-3">Pilih Lokasi di Peta (Interaktif)</label>
-          <MapPicker 
-            lat={form.latitude} 
-            lng={form.longitude} 
-            onChange={(lat, lng) => setForm({ ...form, latitude: lat, longitude: lng, mapsSource: '' })} 
+          <label className="block font-bold mb-1">Link Google Maps (URL / Embed)</label>
+          <input
+            type="text"
+            value={form.mapsSource}
+            onChange={e => setForm({ ...form, mapsSource: e.target.value })}
+            className="w-full border p-2 rounded"
+            placeholder="Contoh: https://maps.app.goo.gl/... atau <iframe src='...'></iframe> (Opsional)"
           />
-          <div className="flex gap-4 mt-3">
-            <div className="flex-1">
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Latitude</label>
-              <input type="number" step="any" value={form.latitude} onChange={e => setForm({...form, latitude: e.target.value})} className="w-full border p-2 rounded text-sm bg-white" placeholder="Contoh: -8.4357" />
-            </div>
-            <div className="flex-1">
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Longitude</label>
-              <input type="number" step="any" value={form.longitude} onChange={e => setForm({...form, longitude: e.target.value})} className="w-full border p-2 rounded text-sm bg-white" placeholder="Contoh: 115.5385" />
-            </div>
-          </div>
         </div>
         <div className="md:col-span-2">
           <label className="block font-bold mb-1">Deskripsi Lengkap*</label>
-          <textarea required rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Agrowisata Salak Sibetan menawarkan pengalaman memetik buah salak bali langsung dari pohonnya, serta menikmati keindahan kebun salak organik yang rindang..." />
+          <textarea required rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full border p-2 rounded" placeholder="Contoh: Agrowisata Salak Sibetan menawarkan pengalaman memetik buah salak bali langsung dari pohonnya, serta menikmati keindahan kebun salak organik yang rindang..." />
         </div>
         <div className="md:col-span-2">
-          <label className="block font-bold mb-1">Tips Wisatawan*</label>
-          <textarea required rows={2} value={form.tips} onChange={e => setForm({...form, tips: e.target.value})} className="w-full border p-2 rounded" placeholder="Contoh: Gunakan pakaian dan alas kaki yang nyaman untuk trekking di kebun, serta siapkan topi dan pelembap kulit." />
+          <label className="block font-bold mb-1">Tips Wisatawan</label>
+          <textarea rows={2} value={form.tips} onChange={e => setForm({ ...form, tips: e.target.value })} className="w-full border p-2 rounded" placeholder="Contoh: Gunakan pakaian dan alas kaki yang nyaman untuk trekking di kebun... (Opsional)" />
         </div>
 
         {editId && existingImages.length > 0 && (
@@ -309,7 +297,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
         )}
 
         <div className="md:col-span-2 mt-2">
-          <ImageUploader 
+          <ImageUploader
             editMode={!!editId}
             label={editId ? 'Tambah Foto Baru (Akan ditambahkan ke daftar gambar di atas):' : 'Upload Foto Destinasi (Multiple)*'}
             onFilesSelected={(newFiles) => setSelectedFiles(prev => [...prev, ...newFiles])}
@@ -339,7 +327,7 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
         </div>
       </AdminFormCard>
 
-      <AdminTable 
+      <AdminTable
         loading={loading}
         data={destinations}
         columns={columns}
@@ -359,7 +347,8 @@ const DestinationsManager = ({ token, API_BASE, SERVER_ORIGIN, showMessage, onUn
               description: previewItem.description || '-',
               fullDescription: previewItem.description || '-',
               tips: previewItem.tips || '',
-              mapEmbedUrl: previewItem.mapsSource || previewItem.mapEmbedUrl || '',
+              mapEmbedUrl: getGoogleMapsEmbedUrl(previewItem),
+              mapLink: getGoogleMapsLink(previewItem),
               latitude: previewItem.latitude || null,
               longitude: previewItem.longitude || null
             }}

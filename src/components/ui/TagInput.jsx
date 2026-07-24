@@ -39,41 +39,44 @@ const TagInput = ({ value, onChange, placeholder = "Ketik teks..." }) => {
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap items-center gap-2 border p-2 rounded bg-white focus-within:border-brand focus-within:ring-1 focus-within:ring-brand transition-shadow">
-        {tags.map((tag, index) => (
-          <span 
-            key={index} 
-            className="flex items-center gap-1 bg-brand text-white px-2.5 py-1 rounded-md text-sm font-medium"
-          >
-            {tag}
-            <button
-              type="button"
-              onClick={() => removeTag(index)}
-              className="hover:bg-white/20 rounded-full p-0.5 transition-colors cursor-pointer"
+      <div className="flex items-center gap-2">
+        <div className="flex-1 flex flex-wrap items-center gap-1.5 border p-1.5 px-2.5 rounded bg-white focus-within:border-[#1B3461] focus-within:ring-2 focus-within:ring-[#1B3461] transition-all min-h-[34px]">
+          {tags.map((tag, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center gap-1 bg-[#1B3461] text-white px-2 py-0.5 rounded text-xs font-semibold"
             >
-              <X className="w-3 h-3" />
-            </button>
-          </span>
-        ))}
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={tags.length === 0 ? placeholder : "Ketik lagi..."}
-          className="flex-1 min-w-[120px] outline-none text-sm bg-transparent"
-        />
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(index)}
+                className="hover:bg-white/20 rounded-full p-0.5 transition-colors cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={tags.length === 0 ? placeholder : "Ketik lagi..."}
+            className="flex-1 min-w-[90px] outline-none bg-transparent border-0 p-0 text-slate-800 text-xs placeholder:text-slate-400 placeholder:text-xs"
+          />
+        </div>
         <button
           type="button"
           onClick={handleAddTag}
           disabled={!inputValue.trim()}
-          className="bg-accent text-white hover:bg-accent/90 p-1 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0 flex items-center justify-center"
-          title="Tambah"
+          className="border border-[#1B3461] bg-[#1B3461] text-white hover:bg-[#1B3461]/90 px-2.5 py-1 rounded font-bold text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shrink-0 inline-flex items-center gap-1 h-[36px]"
+          title="Tambah Tag"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5" />
+          <span>Tambah</span>
         </button>
       </div>
-      <p className="text-xs text-slate-500 mt-1">Ketik teks lalu klik <b>Tambah</b> (atau tekan Enter).</p>
+      <p className="text-[11px] text-slate-500 mt-1">Ketik tag lalu tekan <b>Enter</b> atau tombol <b>Tambah</b> di samping.</p>
     </div>
   );
 };
